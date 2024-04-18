@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>発話チェックB</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *{
+      font-family: 'Noto Sans JP', sans-serif !important;
+    }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .set-button-box{
+      text-align:center;
+      margin-top:10px;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="initial-screen">
+    <div class="set-button-box">
+      <button id="start-button" onclick="startGame()">B: 1つでもミスをしたら終了</button>
+      <h3 style="color:red; text-align:center;">このゲームでいいですか？<br>以上のボタンをクリックすると、始まります。</h3>
+    </div>
+  </section>
+  <!-- ゲーム画面のセクション -->
+  <section id="playing-screen" style="display: none;">
+    <div id="timerDisplay"></div>
+    <button id="wordDisplay"></button>
+    <div id="textLog"></div>
+    <div id="gameContainer">
+      <div id="wordContainer"></div>
+    </div>
+  </section>
+  <script src="../../../game/script2.js"></script>
+  </body>
+</html>

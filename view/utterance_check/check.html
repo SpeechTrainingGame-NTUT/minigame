@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>発話チェック</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Noto Sans JP', sans-serif !important;
+      text-align: center;
+    }
+    .contents {
+      text-align: center;
+    }
+    *,
+    *:before,
+    *:after {
+      -webkit-box-sizing: inherit;
+      box-sizing: inherit;
+    }
+
+    html {
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      font-size: 62.5%;
+    }
+    .space {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    h2{
+      font-size: 30px;
+    }
+    .instruction-box {
+      border: 2px solid #000;
+      padding: 3px;
+      margin-top: 3px;
+      margin-bottom: 3px;
+      margin-left: 350px;
+      margin-right: 350px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>A, Bどちらかを選んでください</h2>
+  <div class="space">
+    <div class="contents"><a href="A.html">A: 制限時間が経過したら終了</a></div>
+  </div>
+  <div class="space">
+    <div class="contents"><a href="B.html">B: 1度でもミスをしたら終了</a></div>
+  </div>
+  <div class="instruction-box">
+    <h3>やり方</h3>
+    <p>
+      事前にマイクのアクセス許可を行ってください。ブラウザの場合は<br>
+      マイクのアクセス許可を求めるポップアップが表示されると思います。<br>
+      プレイ画面に表示された単語を声に出して読んでください。<br>
+      正しければ、「正解！！！」とプレイ画面で確認できます。<br>
+      ミスをすれば、「残念！！！」とプレイ画面で確認できます。
+    </p>
+  </div>
+</body>
+</html>

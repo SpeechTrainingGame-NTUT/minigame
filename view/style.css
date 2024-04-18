@@ -1,0 +1,54 @@
+*{
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#gameContainer{
+    display: block;
+}
+
+#resultContainer{
+    display:none; /*要素を画面から消せる*/
+    font-size: 20px;
+    font-weight:bold; /*フォントを太字に指定*/
+}
+
+.timer-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 32px;
+}
+
+.timer-set-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+#timer_input{
+    margin-bottom: 8px;
+}
+
+#time{
+    text-align: center;
+}
+
+#playing-screen{
+    display: none;
+}
+
+#warning{
+    padding: 16px;
+    margin-top: 8px;
+    border:1px solid orange;
+    opacity: 0;
+    transition: ease-in-out .3s;
+}
+
+#warning.is-active{
+    opacity: 1;
+    transition: ease-in-out .3s;
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>サンプル音声</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Noto Sans JP', sans-serif !important;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .content label {
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    input {
+      width: 15%;
+    }
+    a{
+      display: block;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">テキストを入力するとブラウザがしゃべります</h2>
+  <p style="text-align: center;">以下の項目で、必要に応じて変更することができます。<br>音声合成を開始したい場合は、「読み上げる」を押してください。<br>ブラウザが単語を読み間違えることがあるので、その際は片仮名で聴きたい言葉を入力してください。<br>薄い灰色で書かれているのは入力の例です。</p>
+  <p style="color:red; text-align: center;">すぐに読み上げることができない可能性があります。</p>
+  <div class="content">
+    <label for="rate">速さ</label>
+    <input id="rate" type="number" placeholder="1" step="0.1">
+  </div>
+  <div class="content">
+    <label for="pitch">高さ</label>
+    <input id="pitch" type="number" placeholder="1" step="0.1">
+  </div>
+  <div class="content">
+    <label for="volume">音量</label>
+    <input id="volume" type="number" placeholder="1" step="0.1">
+  </div>
+  <div class="content">
+    <label for="txt">聴きたい言葉</label>
+    <input id="txt" type="text" placeholder="生麦生米生卵">
+  </div>
+  <div class="content">
+    <input id="btn" type="button" value="読み上げる">
+  </div>
+  <a href='../../index.html'>トップ画面へ</a> 
+  <script>
+    const btn = document.getElementById("btn");
+    btn.addEventListener("click", () => {
+      const synth = new SpeechSynthesisUtterance();
+      const txt = document.getElementById("txt");
+      synth.text = txt.value;
+
+      const rateInput = document.getElementById("rate");
+      const pitchInput = document.getElementById("pitch");
+      const volumeInput = document.getElementById("volume");
+
+      synth.rate = parseFloat(rateInput.value) || 1.0;
+      synth.pitch = parseFloat(pitchInput.value) || 1.0;
+      synth.volume = parseFloat(volumeInput.value) || 1.0;
+
+      window.speechSynthesis.speak(synth);
+    });
+  </script>
+</body>
+</html>

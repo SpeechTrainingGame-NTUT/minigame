@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>声の持続力 チャレンジ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+      * {
+       font-family: 'Noto Sans JP', sans-serif !important;
+      }
+    </style>  
+  </head>
+  <body>
+    <p style="text-align: center;">どのくらい長く声を出せるか、ボリュームメーターを使って試してみましょう。<br>発話を始めた時点で、経過時間のカウントが始まります。<br>リセットしたい場合は、このページをリロードしてください。</p>
+    <p style="color:red;">すぐに声が認識しない可能性があります。その場合は、再度声を出してみてください。</p>
+    <div style="border: 1px solid black; width: 500px;">
+      <div id="volume" style="height: 10px; background: black; transition: width .1s; width: 0%"></div>
+    </div>
+    <div id="elapsedTime">経過時間: 0秒</div>
+    <label for="threshold">しきい値:</label>
+    <input type="number" id="threshold" value="0.01" step="0.001" />
+    <button onClick="changeThreshold()" type="button">しきい値変更</button>
+    <br>
+    ※しきい値...声の認識が始まる声の大きさ
+    <br>
+    <a href='../../index.html'>トップ画面へ</a>
+    <script>
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const meter = document.getElementById('volume');
+      let isRecognitionStarted = false; //音声認識が始まったか
+      let recognitionStartTime; //音声認識が開始された時刻を保存
+      let silenceCount = 0; //声を出さなかった時間をカウント
+      let elapsedTimeInterval; //音声認識中に経過時間を更新するためのIDを保存
+
+      let threshold = 0.01; // しきい値の初期値  
+
+      //ユーザーのマイクからオーディオを取得し、成功した場合はそれをコンソールに表示し、エラーが発生した場合はエラーメッセージをコンソールに表示する。{ audio: true } は、マイクへのアクセスを要求
+      navigator.mediaDevices.getUserMedia({ audio: true }) 
+        .then(stream => console.log('getUserMedia success', stream))
+        .catch(error => console.error('getUserMedia error', error));
+
+      //音声のボリュームをパーセント表示
+      function render(percent) {
+        if(percent < threshold){
+          percent = 0;
+        }
+        console.log('Percent:', percent);
+        meter.style.width = Math.min(Math.max(0, percent), 100) + '%';
+
+        if (percent > threshold && !isRecognitionStarted) {
+          startRecognition();
+        }
+      }
+
+      //音声データを処理し、声の大きさを計算してボリュームメーターを更新し、声を出さなかった時間を検知して音声認識を制御する
+      function onProcess(event) {
+        const data = event.inputBuffer.getChannelData(0); 
+        const peak = data.reduce((max, sample) => {
+          const cur = Math.abs(sample);
+          return max > cur ? max : cur;
+        });
+
+        // 音声が無音（しきい値以下）である時間を silenceCount ではかる
+        if (peak < threshold) {
+          silenceCount += 1;
+          render(0); // Percentを0に設定
+        } else {
+          silenceCount = 0;
+          render(100 / 32 * 10 * Math.log10(peak) + 100);
+        }
+
+        if (!isRecognitionStarted) {
+          startRecognition();
+        }else if(silenceCount > 0 && isRecognitionStarted){
+          stopRecognition();
+        }
+      }
+
+      async function start() {
+        const media = await navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .catch(console.error);
+        const ctx = new AudioContext();
+        console.log('Sampling Rate:', ctx.sampleRate);
+
+        const processor = ctx.createScriptProcessor(1024, 1, 1);
+        processor.onaudioprocess = onProcess;
+        processor.connect(ctx.destination);
+
+        const source = ctx.createMediaStreamSource(media);
+        source.connect(processor);
+      }
+
+      function startRecognition() {
+        console.log('Recognition started!');
+        recognitionStartTime = new Date();
+        isRecognitionStarted = true; // フラグを初めて設定
+        elapsedTimeInterval = setInterval(updateElapsedTime, 1000);
+      }
+
+      function stopRecognition() {
+        console.log('Recognition stopped!');
+        isRecognitionStarted = false;
+        silenceCount = 0;
+        clearInterval(elapsedTimeInterval);
+      }
+
+      function updateElapsedTime() {
+        const currentTime = new Date();
+        const elapsedSeconds = Math.floor((currentTime - recognitionStartTime) / 1000);
+        document.getElementById('elapsedTime').innerText = '経過時間: ' + elapsedSeconds + '秒';
+      }
+
+      // ページが読み込まれたときにスタート
+      window.onload = start;
+
+      // しきい値を変更する関数
+      function changeThreshold() {
+        threshold = parseFloat(document.getElementById('threshold').value);
+        recognitionStartTime = new Date(); // 経過時間をリセット
+        updateElapsedTime(); // 経過時間を表示
+        console.log('Threshold changed:', threshold);
+      }      
+    </script>
+  </body>  
+</html>
