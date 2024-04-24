@@ -29,26 +29,30 @@
   <section id="initial-screen">
     <div class="spece">
       <h3 style="color:red; text-align:center;">まずは、目標の正解数のフォームに入力して、「設定」を押してください。<br>その次に、制限時間のフォームに入力して、「開始」を押してください。なお、制限時間は秒単位です。</h3>
+
+    <div class="correct-count-box" style="text-align: center;">
+      
+      <div class="correct-count-set-box">
+        <h2>目標の正解数</h2>
+        <input type="number" id="targetCorrect" min="0">
+      </div>
+      <div>
+        <div class="set-button-box">
+        <button id="targetCorrect" onclick="setTarget()">設定</button>
+        </div>
+      </div>
+      
       <div class="timer-box">
         <div class="timer-set-box">
           <h2>制限時間</h2>
-           <input type="number" id="timer_input">
-           <button id="timer-button">開始</button>
-         </div>
-       <p id="warning">入力値が不正です</p>
-     </div>
-       <div class="correct-count-box" style="text-align: center;">
-         <div class="correct-count-set-box">
-           <h2>目標の正解数</h2>
-           <input type="number" id="targetCorrect" min="0">
-         </div>
-         <div>
-           <div class="set-button-box">
-         <button id="targetCorrect" onclick="setTarget()">設定</button>
-         </div>
-         </div>
-       </div>
-     </section>
+          <input type="number" id="timer_input">
+          <button id="timer-button">開始</button>
+        </div>
+        <p id="warning">入力値が不正です</p>
+      </div>
+      
+      </div>
+    </section>
 
    <section id="playing-screen">
      <div id="timerDisplay"></div>
