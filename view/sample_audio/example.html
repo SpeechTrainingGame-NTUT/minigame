@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>サンプル音声 例</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Noto Sans JP', sans-serif !important;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    ul a {
+      text-decoration: none;
+      text-align: center;
+      display: block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    p {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <p>サンプル音声の例は、ひらがな50音です。<br>速さ、高さ、音量の数値はそれぞれ標準である1としました。<br>ボックスをクリックすると、声が聞こえます。</p>
+  <ul class="a_gyo">
+    <a onclick="speak('あ')">あ</a>
+    <a onclick="speak('い')">い</a>
+    <a onclick="speak('う')">う</a>
+    <a onclick="speak('え')">え</a>
+    <a onclick="speak('お')">お</a>
+  </ul>
+  <ul class="k_gyo">
+    <a onclick="speak('か')">か</a>
+    <a onclick="speak('き')">き</a>
+    <a onclick="speak('く')">く</a>
+    <a onclick="speak('け')">け</a>
+    <a onclick="speak('こ')">こ</a>
+  </ul>
+  <ul class="s_gyo">
+    <a onclick="speak('さ')">さ</a>
+    <a onclick="speak('し')">し</a>
+    <a onclick="speak('す')">す</a>
+    <a onclick="speak('せ')">せ</a>
+    <a onclick="speak('そ')">そ</a>
+  </ul>
+  <ul class="t_gyo">
+    <a onclick="speak('た')">た</a>
+    <a onclick="speak('ち')">ち</a>
+    <a onclick="speak('つ')">つ</a>
+    <a onclick="speak('て')">て</a>
+    <a onclick="speak('と')">と</a>
+  </ul>
+  <ul class="n_gyo">
+    <a onclick="speak('な')">な</a>
+    <a onclick="speak('に')">に</a>
+    <a onclick="speak('ぬ')">ぬ</a>
+    <a onclick="speak('ね')">ね</a>
+    <a onclick="speak('の')">の</a>
+  </ul>
+  <ul class="h_gyo">
+    <a onclick="speak('は')">は</a>
+    <a onclick="speak('ひ')">ひ</a>
+    <a onclick="speak('ふ')">ふ</a>
+    <a onclick="speak('へ')">へ</a>
+    <a onclick="speak('ほ')">ほ</a>
+  </ul>
+  <ul class="m_gyo">
+    <a onclick="speak('ま')">ま</a>
+    <a onclick="speak('み')">み</a>
+    <a onclick="speak('む')">む</a>
+    <a onclick="speak('め')">め</a>
+    <a onclick="speak('も')">も</a>
+  </ul>
+  <ul class="y_gyo">
+    <a onclick="speak('や')">や</a>
+    <a onclick="speak('ゆ')">ゆ</a>
+    <a onclick="speak('よ')">よ</a>
+  </ul>
+  <ul class="r_gyo">
+    <a onclick="speak('ら')">ら</a>
+    <a onclick="speak('り')">り</a>
+    <a onclick="speak('る')">る</a>
+    <a onclick="speak('れ')">れ</a>
+    <a onclick="speak('ろ')">ろ</a>
+  </ul>
+  <ul class="w_gyo">
+    <a onclick="speak('わ')">わ</a>
+    <a onclick="speak('を')">を</a>
+    <a onclick="speak('ん')">ん</a>
+  </ul>  
+  <p><a href="index.html">トップ画面へ</a></p>
+
+  <script>
+    function speak(character) {
+      const synth = new SpeechSynthesisUtterance(character);
+      synth.rate = 1.0; 
+      synth.pitch = 1.0; 
+      synth.volume = 1.0; 
+      window.speechSynthesis.speak(synth);
+    }
+  </script>
+</body>
+</html>
