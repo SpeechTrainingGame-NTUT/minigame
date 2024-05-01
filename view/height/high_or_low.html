@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>声の高さゲーム</title>
+</head>
+
+<style>
+  body {
+    font-family: 'Noto Sans JP', sans-serif !important;
+  }
+</style>
+
+<body>
+  <p style="text-align: center;">startを押すと、高い声か低い声かを確認できます。<br>stopを押すと、音の判定が終了します。</p>
+  <div>
+    <button onclick="startListening()">start</button>
+    <button onclick="stopListening()">stop</button>
+  </div>
+  <div id="voiceStatus"></div>
+  <p><a href="../../index.html">トップ画面へ</a></p>
+
+  <script>
+    let audioContext;
+    let microphoneStream;
+    let analyserNode;
+    let voiceStatusElement;
+
+    function startListening() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('このブラウザではgetUserMediaはサポートされていません。');
+            return;
+        }
+
+        voiceStatusElement = document.getElementById('voiceStatus');
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function (stream) {
+                audioContext = new AudioContext();
+                microphoneStream = audioContext.createMediaStreamSource(stream);
+                analyserNode = audioContext.createAnalyser();
+                analyserNode.fftSize = 2048;
+                microphoneStream.connect(analyserNode);
+                analyzePitch();
+            })
+            .catch(function (err) {
+                alert('マイクへのアクセス中にエラーが発生しました: ' + err.name + ': ' + err.message);
+            });
+    }
+
+    function stopListening() {
+        if (audioContext) {
+            audioContext.close();
+        }
+    }
+
+    function analyzePitch() {
+        const bufferLength = analyserNode.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        analyserNode.getByteFrequencyData(dataArray);
+
+        let maxFrequencyIndex = 0;
+        let maxFrequencyValue = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            if (dataArray[i] > maxFrequencyValue) {
+                maxFrequencyValue = dataArray[i];
+                maxFrequencyIndex = i;
+            }
+        }
+
+        const pitch = maxFrequencyIndex * audioContext.sampleRate / bufferLength; //最大周波数のインデックスをサンプリングレート（音声をデータにする時に、1秒間を何個の点に分割するか、という値）で割って、実際の周波数（Hz）に変換
+        console.log('声の高さ:', pitch.toFixed(2), 'Hz');
+
+        // 高いか低いかの判別
+        if (pitch > 300) {
+            voiceStatusElement.textContent = '高い声';
+        } else {
+            voiceStatusElement.textContent = '低い声';
+        }
+
+        requestAnimationFrame(analyzePitch);
+    }
+  </script>
+</body>
+
+</html>
