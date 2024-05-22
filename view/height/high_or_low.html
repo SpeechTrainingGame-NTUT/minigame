@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -36,6 +37,7 @@
 
         voiceStatusElement = document.getElementById('voiceStatus');
 
+        //成功したときに音声の解析を開始
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function (stream) {
                 audioContext = new AudioContext();
@@ -51,12 +53,14 @@
     }
 
     function stopListening() {
+        // 音声の解析を停止する
         if (audioContext) {
             audioContext.close();
         }
     }
 
     function analyzePitch() {
+        // 音声の解析を行い、声の高さを判定する
         const bufferLength = analyserNode.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
 
@@ -88,3 +92,4 @@
 </body>
 
 </html>
+-->
