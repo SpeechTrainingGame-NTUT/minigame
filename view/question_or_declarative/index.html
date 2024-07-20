@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>疑問文か平叙文か</title>
+    <style>
+        * {
+           font-family: 'Noto Sans JP', sans-serif !important;
+        }
+        body {
+            text-align: center;
+            padding: 50px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+    <body>
+        <h1>疑問文か平叙文か</h1>
+        <p>「お昼食べた？」「お昼食べた」というように、疑問文か平叙文かチェックすることができます。</p>
+        <button onclick="startRecognition()">発話を開始</button>
+        <div id="status">発話を開始するには、上のボタンを押してください。</div>
+
+        <script>
+            let audioContext;
+            let mediaStreamSource;
+            let analyser;
+            let dataArray;
+            let pitchElement = document.getElementById('status');
+
+            function startRecognition() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048;
+                    dataArray = new Float32Array(analyser.fftSize);
+
+                    mediaStreamSource.connect(analyser);
+                    pitchElement.textContent = 'リスニング中...';
+
+                    recognizePitch();
+                }).catch(err => {
+                    console.error(err);
+                    pitchElement.textContent = 'マイクへのアクセスが拒否されました。';
+                });
+            }
+
+            function recognizePitch() { //音声認識開始
+                // 音声認識の初期化
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'ja-JP';
+                recognition.interimResults = false;
+
+                recognition.start();
+                recognition.onresult = (event) => {
+                    const result = event.results[0][0].transcript;
+                    recognition.stop();
+
+                    pitchElement.textContent = 'ピッチ解析中...';
+                    analyzePitch(result);
+                };
+
+                recognition.onerror = (event) => {
+                    pitchElement.textContent = 'エラーが発生しました: ' + event.error;
+                };
+
+                recognition.onspeechend = () => {
+                    recognition.stop();
+                };
+            }
+
+            function analyzePitch(text) { //ピッチ解析開始、結果表示
+                const pitchValues = [];
+                const pitchCheckInterval = setInterval(() => {
+                    analyser.getFloatTimeDomainData(dataArray);
+                    const pitch = autoCorrelate(dataArray, audioContext.sampleRate);
+                    if (pitch > 0) {
+                        pitchValues.push(pitch);
+                    }
+                }, 50);
+
+                setTimeout(() => {
+                    clearInterval(pitchCheckInterval);
+                    if (pitchValues.length > 5) {
+                         const averagePitch = pitchValues.reduce((sum, p) => sum + p, 0) / pitchValues.length;
+                        const isQuestion = pitchValues[pitchValues.length-1] > averagePitch;
+
+                        if (isQuestion) {
+                            pitchElement.textContent = `「${text}」は疑問文です。`;
+                        } else {
+                            pitchElement.textContent = `「${text}」は平叙文です。`;
+                        }
+                    } else {
+                        pitchElement.textContent = `ピッチの検出が不十分です。もう一度試してください。`;
+                    }
+                }, 1500); // 約3秒間の解析
+            }
+
+            // ピッチの自動相関を利用して周波数を推定する関数
+            function autoCorrelate(buf, sampleRate) {
+                let SIZE = buf.length;
+                let MAX_SAMPLES = Math.floor(SIZE / 2);
+                let best_offset = -1;
+                let best_correlation = 0;
+                let rms = 0;
+
+                for (let i = 0; i < SIZE; i++) {
+                    rms += buf[i] * buf[i];
+                }
+                rms = Math.sqrt(rms / SIZE);
+
+                if (rms < 0.01) return -1; // ほぼ無音
+
+                let lastCorrelation = 1;
+                for (let offset = 0; offset < MAX_SAMPLES; offset++) {
+                    let correlation = 0;
+
+                    for (let i = 0; i < MAX_SAMPLES; i++) {
+                        correlation += Math.abs(buf[i] - buf[i + offset]);
+                    }
+                    correlation = 1 - (correlation / MAX_SAMPLES);
+                    if (correlation > best_correlation) {
+                        best_correlation = correlation;
+                        best_offset = offset;
+                    }
+                }
+
+                if (best_correlation > 0.01 && best_correlation < 0.99) { // 周波数の検出範囲を制限
+                    return sampleRate / best_offset;
+                }
+                return -1; // 周波数を検出できず
+            }
+        </script>
+    </body>
+    </html>

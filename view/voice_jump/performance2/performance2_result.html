@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結果画面</title>
+    <style>
+        body{text-align: center;}
+        * { font-family: 'Noto Sans JP', sans-serif !important; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.jsのスクリプトを追加 -->
+</head>
+<body>
+    <div id="result">
+        <h1>ラン&ジャンプ 結果</h1>
+        <p>経過時間: <span id="elapsedTime"></span>秒</p>
+        <h2>音量グラフ</h2>
+        <canvas id="volumeChart" width="800" height="160"></canvas> <!-- グラフ描画用の<canvas>要素 -->
+        <button onclick="location.href='performance2.html'">再挑戦</button>
+        <button onclick="location.href='../../../index.html'">トップ画面へ</button>
+    </div>
+    <script src="performance2_result.js"></script>
+</body>
+</html>

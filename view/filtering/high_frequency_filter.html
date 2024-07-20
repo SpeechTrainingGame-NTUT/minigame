@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>High Frequency Filter</title>
+</head>
+<body>
+<div id="waveform"></div>
+<script src="https://unpkg.com/wavesurfer.js"></script>
+<script>
+        // 音声入力の取得
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const audioContext = new AudioContext();
+                const source = audioContext.createMediaStreamSource(stream);
+
+                // 高周波数フィルタの作成
+                const highPassFilter = audioContext.createBiquadFilter();
+                highPassFilter.type = 'highpass';
+                highPassFilter.frequency.value = 1000; // カットオフ周波数を設定 (例: 1000Hz)
+
+                // フィルタを接続
+                source.connect(highPassFilter);
+
+                // wavesurferの初期化
+                const wavesurfer = WaveSurfer.create({
+                    container: '#waveform',
+                    waveColor: 'violet',
+                    progressColor: 'purple',
+                    cursorColor: 'navy',
+                    audioContext: audioContext,
+                    audioScriptProcessor: highPassFilter // ここでフィルタを接続
+                });
+
+                // 波形の表示を更新
+                highPassFilter.connect(wavesurfer.backend.gainNode);
+                wavesurfer.loadDecodedBuffer(audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate));
+            })
+            .catch(error => {
+                console.error('Error accessing media devices.', error);
+            });
+</script>
+</body>
+</html>
