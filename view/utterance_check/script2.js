@@ -48,8 +48,8 @@ function startGame() {
   //ゲームが開始されたら画面を切り替える
   const initialScreen = document.getElementById("initial-screen");
   const playingScreen = document.getElementById("playing-screen");
-  initialScreen.style.display = "none";
-  playingScreen.style.display = "block";
+  initialScreen.classList.add("d-none");
+  playingScreen.classList.remove("d-none");
 
   currentWord = getRandomWord(); 
   wordDisplay.textContent = currentWord; 
@@ -110,8 +110,8 @@ sr.addEventListener("result", function(e) {
 });
 
 startButton.addEventListener("click", function() {
-  initialScreen.style.display = "none"; // 初期画面を非表示
-  playingScreen.style.display = "block"; // ゲーム画面を表示
+  initialScreen.classList.add("d-none");
+  playingScreen.classList.remove("d-none");
   startGame();
 });
 

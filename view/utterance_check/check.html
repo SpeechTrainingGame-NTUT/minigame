@@ -19,6 +19,26 @@
       padding: 15px;
       margin-top: 20px;
     }
+    .btn-custom-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      color: white;
+    }
+    .btn-custom-danger:hover {
+      background-color: #c82333;
+      border-color: #bd2130;
+      color: white;
+    }
+    .btn-custom-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: white;
+    }
+    .btn-custom-secondary:hover {
+      background-color: #5a6268;
+      border-color: #545b62;
+      color: white;
+    }
   </style>
 </head>
 
@@ -26,12 +46,12 @@
   <h2 class="mb-4 text-center">A, Bどちらかを選んでください</h2>
   <div class="row justify-content-center mb-4">
     <div class="col-md-6 mb-3">
-      <a href="A.html" class="btn btn-primary btn-lg w-100">
+      <a href="A.html" class="btn btn-custom-danger btn-lg w-100">
         <i class="fas fa-clock me-2"></i>A: 制限時間が経過したら終了
       </a>
     </div>
     <div class="col-md-6 mb-3">
-      <a href="B.html" class="btn btn-secondary btn-lg w-100">
+      <a href="B.html" class="btn btn-custom-secondary btn-lg w-100">
         <i class="fas fa-times-circle me-2"></i>B: 1度でもミスをしたら終了
       </a>
     </div>
@@ -48,8 +68,8 @@
   </div>
   
   <div class="text-center mt-4">
-    <a href="javascript:history.back()" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-2"></i>戻る
+    <a href="../../index.html" class="btn btn-primary">
+      <i class="fas fa-home me-2"></i>ホーム画面へ
     </a>
   </div>
 
