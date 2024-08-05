@@ -1,70 +1,59 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>発話チェック</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
   <style>
-    * {
-      font-family: 'Noto Sans JP', sans-serif !important;
-      text-align: center;
-    }
-    .contents {
-      text-align: center;
-    }
-    *,
-    *:before,
-    *:after {
-      -webkit-box-sizing: inherit;
-      box-sizing: inherit;
-    }
-
-    html {
-      -webkit-box-sizing: border-box;
-      box-sizing: border-box;
-      font-size: 62.5%;
-    }
-    .space {
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-    h2{
-      font-size: 30px;
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
     }
     .instruction-box {
       border: 2px solid #000;
-      padding: 3px;
-      margin-top: 3px;
-      margin-bottom: 3px;
-      margin-left: 350px;
-      margin-right: 350px;
-      font-size: 15px;
+      padding: 15px;
+      margin-top: 20px;
     }
   </style>
 </head>
 
-<body>
-  <h2>A, Bどちらかを選んでください</h2>
-  <div class="space">
-    <div class="contents"><a href="A.html">A: 制限時間が経過したら終了</a></div>
-  </div>
-  <div class="space">
-    <div class="contents"><a href="B.html">B: 1度でもミスをしたら終了</a></div>
+<body class="container py-4">
+  <h2 class="mb-4 text-center">A, Bどちらかを選んでください</h2>
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6 mb-3">
+      <a href="A.html" class="btn btn-primary btn-lg w-100">
+        <i class="fas fa-clock me-2"></i>A: 制限時間が経過したら終了
+      </a>
+    </div>
+    <div class="col-md-6 mb-3">
+      <a href="B.html" class="btn btn-secondary btn-lg w-100">
+        <i class="fas fa-times-circle me-2"></i>B: 1度でもミスをしたら終了
+      </a>
+    </div>
   </div>
   <div class="instruction-box">
     <h3>やり方</h3>
     <p>
-      事前にマイクのアクセス許可を行ってください。ブラウザの場合は<br>
-      マイクのアクセス許可を求めるポップアップが表示されると思います。<br>
-      プレイ画面に表示された単語を声に出して読んでください。<br>
-      正しければ、「正解！！！」とプレイ画面で確認できます。<br>
+      事前にマイクのアクセス許可を行ってください。ブラウザの場合は
+      マイクのアクセス許可を求めるポップアップが表示されると思います。
+      プレイ画面に表示された単語を声に出して読んでください。
+      正しければ、「正解！！！」とプレイ画面で確認できます。
       ミスをすれば、「残念！！！」とプレイ画面で確認できます。
     </p>
   </div>
+  
+  <div class="text-center mt-4">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-2"></i>戻る
+    </a>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

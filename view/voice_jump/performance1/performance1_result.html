@@ -5,20 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>結果画面</title>
     <style>
-        body{text-align: center;}
-        * { font-family: 'Noto Sans JP', sans-serif !important; }
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        * { 
+            font-family: 'Noto Sans JP', sans-serif !important;
+            box-sizing: inherit;
+        }
+        #result {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.jsのスクリプトを追加 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div id="result">
         <h1>ラン&ジャンプ 結果</h1>
         <p>経過時間: <span id="elapsedTime"></span>秒</p>
         <h2>音量グラフ</h2>
-        <canvas id="volumeChart" width="800" height="160"></canvas> <!-- グラフ描画用の<canvas>要素 -->
+        <canvas id="volumeChart"></canvas>
         <button onclick="location.href='performance1.html'">再挑戦</button>
         <button onclick="location.href='../../../index.html'">トップ画面へ</button>
     </div>
     <script src="performance1_result.js"></script>
 </body>
 </html>
+
+<!--
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結果画面</title>
+    <style>
+        body{text-align: center;}
+        * { font-family: 'Noto Sans JP', sans-serif !important; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="result">
+        <h1>ラン&ジャンプ 結果</h1>
+        <p>経過時間: <span id="elapsedTime"></span>秒</p>
+        <h2>音量グラフ</h2>
+        <canvas id="volumeChart" width="800" height="160"></canvas>
+        <button onclick="location.href='performance1.html'">再挑戦</button>
+        <button onclick="location.href='../../../index.html'">トップ画面へ</button>
+    </div>
+    <script src="performance1_result.js"></script>
+</body>
+</html>
+-->

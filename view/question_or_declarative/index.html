@@ -97,7 +97,7 @@
                     clearInterval(pitchCheckInterval);
                     if (pitchValues.length > 5) {
                          const averagePitch = pitchValues.reduce((sum, p) => sum + p, 0) / pitchValues.length;
-                        const isQuestion = pitchValues[pitchValues.length-1] > averagePitch;
+                        const isQuestion = pitchValues[pitchValues.length-1] > averagePitch; //「const isQuestion = pitchValues.at(-1) > averagePitch;」に変えると、ずっとリスニング中と表示されてしまう
 
                         if (isQuestion) {
                             pitchElement.textContent = `「${text}」は疑問文です。`;

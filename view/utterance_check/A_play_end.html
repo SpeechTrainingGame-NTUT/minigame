@@ -1,59 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>発話チェックA 結果</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
   <style>
-    * {
-      text-align: center;
+    body {
       font-family: 'Noto Sans JP', sans-serif !important;
     }
   </style>
 </head>
 
-<body>
-  <h2>お疲れ様でした</h2>
-  <div>
-    <p>正解数：<span id="correctCount"></span></p>
-    <p>ミス数：<span id="mistakeCount"></span></p>
-    <p>正解した単語：<span id="correctWords"></span></p>
-    <p>ミスした単語：<span id="mistakeWords"></span></p>
-    <p style="color: red;">目標の正解数は<span id="targetCorrect"></span>で、結果の正解数は<span id="correctCountNumber"></span>でした。<br><span id="targetMessage"></span></p>
+<body class="container py-5">
+  <h2 class="mb-4">お疲れ様でした</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <p>正解数：<span id="correctCount" class="fw-bold"></span></p>
+      <p>ミス数：<span id="mistakeCount" class="fw-bold"></span></p>
+      <p>正解した単語：<span id="correctWords" class="fst-italic"></span></p>
+      <p>ミスした単語：<span id="mistakeWords" class="fst-italic"></span></p>
+      <p class="text-danger">目標の正解数は<span id="targetCorrect" class="fw-bold"></span>で、結果の正解数は<span id="correctCountNumber" class="fw-bold"></span>でした。<br><span id="targetMessage" class="fw-bold"></span></p>
+    </div>
   </div>
-  <a href='../../index.html'>トップ画面へ</a>
+  <a href='../../index.html' class="btn btn-primary"><i class="fas fa-home me-2"></i>トップ画面へ</a>
+
   <script>
-    // URLパラメータから正解数とミス数を取得して表示
-    const urlParams = new URLSearchParams(window.location.search);
-    const correctCount = urlParams.get("correct");
-    const mistakeCount = urlParams.get("mistakes");
-    const correctWords = urlParams.get("correctWords");
-    const mistakeWords = urlParams.get("mistakeWords");
-    const targetCorrect = urlParams.get("targetCorrect"); // 目標の正解数を取得
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      const correctCount = urlParams.get('correct');
+      const mistakeCount = urlParams.get('mistakes');
+      const correctWords = urlParams.get('correctWords');
+      const mistakeWords = urlParams.get('mistakeWords');
+      const targetCorrect = urlParams.get('targetCorrect');
 
-    document.getElementById("correctCount").textContent = correctCount;
-    document.getElementById("mistakeCount").textContent = mistakeCount;
-    document.getElementById("correctWords").textContent = correctWords;
-    document.getElementById("mistakeWords").textContent = mistakeWords;
-    document.getElementById("targetCorrect").textContent = targetCorrect;
-    document.getElementById("correctCountNumber").textContent = correctCount;
+      document.getElementById('correctCount').textContent = correctCount;
+      document.getElementById('mistakeCount').textContent = mistakeCount;
+      document.getElementById('correctWords').textContent = correctWords ? correctWords.replace(/，/g, '、') : 'なし';
+      document.getElementById('mistakeWords').textContent = mistakeWords ? mistakeWords.replace(/，/g, '、') : 'なし';
+      document.getElementById('targetCorrect').textContent = targetCorrect;
+      document.getElementById('correctCountNumber').textContent = correctCount;
 
-    const targetCorrectNumber = parseInt(targetCorrect); // 目標の正解数を整数に変換
-
-    const targetMessage = document.getElementById("targetMessage");
-
-    if (correctCount >= targetCorrectNumber) {
-      targetMessage.textContent = "おめでとう！";
-    } else {
-      targetMessage.textContent = "またチャレンジしてね！";
-    }
+      const targetMessage = document.getElementById('targetMessage');
+      if (parseInt(correctCount) >= parseInt(targetCorrect)) {
+        targetMessage.textContent = '目標達成おめでとうございます！';
+        targetMessage.classList.add('text-success');
+      } else {
+        targetMessage.textContent = '目標達成まであと一歩でした。次は頑張りましょう！';
+        targetMessage.classList.add('text-warning');
+      }
+    });
   </script>
-  <script src="game/script.js"></script>
+
+  <!-- ... 既存のscriptタグ ... -->
+  <script src="script.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

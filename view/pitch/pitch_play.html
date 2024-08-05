@@ -2,9 +2,6 @@
 <html>
 <head>
     <title>Pitch Detection</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
     <style>
         * { font-family: 'Noto Sans JP', sans-serif !important; }
         #debug {
@@ -19,114 +16,94 @@
     </style>
 </head>
 <body>
-    <div id="debug">Loading model...</div>
+    <div id="debug">Click "Start Detection" to begin</div>
+    <button id="detectButton">Start Detection</button>
+    <canvas id="visualizer" width="400" height="200"></canvas>
     <script>
-        let mic, pitch, audioContext;
-        let currentPitch = 0;
+        let audioCtx, analyser, microphone, bufferLength, dataArray;
+        let isDetecting = false;
+        let canvas, canvasCtx;
 
-    function setup() {
-        createCanvas(400, 400);
-        mic = new p5.AudioIn();
-        mic.start(initPitch);
+        document.getElementById('detectButton').addEventListener('click', startDetection);
 
-        audioContext = getAudioContext();
-        console.log('AudioContext state:', audioContext.state);
-        updateDebug(`AudioContext state: ${audioContext.state}`);
+        function startDetection() {
+            if (isDetecting) return;
 
-        // Ensure audio context resumes on button click
-        document.getElementById('detectButton').addEventListener('click', function() {
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('Playback resumed successfully on click');
-                    updateDebug('Playback resumed successfully on click');
-                    getPitch(); // Start pitch detection after audio context is resumed
-                }).catch(err => {
-                    console.error('Playback resume failed on click', err);
-                    updateDebug(`Playback resume failed on click: ${err}`);
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+
+            canvas = document.getElementById('visualizer');
+            canvasCtx = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(stream => {
+                    microphone = audioCtx.createMediaStreamSource(stream);
+                    microphone.connect(analyser);
+                    isDetecting = true;
+                    updatePitch();
+                    visualize();
+                })
+                .catch(err => {
+                    console.error('Error accessing microphone:', err);
+                    updateDebug(`Error accessing microphone: ${err.message}`);
                 });
-            } else {
-                getPitch(); // Start pitch detection immediately if audio context is already running
-            }
-        });
-
-        ensureAudioContextRunning();
-    }
-
-    function ensureAudioContextRunning() {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-                console.log('Playback resumed successfully');
-                updateDebug('Playback resumed successfully');
-            }).catch(err => {
-                console.error('Playback resume failed', err);
-                updateDebug(`Playback resume failed: ${err}`);
-            });
-            setTimeout(ensureAudioContextRunning, 1000); // 1秒後に再試行
         }
-    }
 
-    function initPitch() {
-        console.log('Microphone initialized');
-        updateDebug('Microphone initialized');
+        function updatePitch() {
+            if (!isDetecting) return;
 
-        const modelUrl = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models@main/models/crepe';
-        ml5.pitchDetection(modelUrl, getAudioContext(), mic.stream)
-            .then((pd) => {
-                pitch = pd;
-                modelLoaded();
-            })
-            .catch((err) => {
-                modelError(err);
-            });
-    }
-
-    function modelLoaded() {
-        console.log('Model Loaded!');
-        updateDebug('Model Loaded!');
-    }
-
-    function modelError(err) {
-        console.error('Model Load Error:', err);
-        updateDebug(`Model Load Error: ${err}`);
-    }
-
-    function getPitch() {
-        if (!pitch) return;
-
-        pitch.getPitch((err, frequency) => {
-            if (err) {
-                console.error(err);
-                updateDebug(`Error: ${err}`);
-            } else if (frequency) {
-                currentPitch = frequency;
-                updateDebug(`Detected pitch: ${currentPitch}`);
-            } else {
-                currentPitch = 0;
-                updateDebug('No pitch detected');
+            analyser.getByteFrequencyData(dataArray);
+            
+            let maxIndex = 0;
+            let maxValue = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                if (dataArray[i] > maxValue) {
+                    maxValue = dataArray[i];
+                    maxIndex = i;
+                }
             }
-            setTimeout(getPitch, 100); // Regularly check for pitch
-        });
-    }
 
-    function updateDebug(message) {
-        const debugDiv = document.getElementById('debug');
-        debugDiv.innerHTML += `<p>${message}</p>`;
-        debugDiv.scrollTop = debugDiv.scrollHeight;
-    }
+            // 周波数を計算 (Hz)
+            let frequency = maxIndex * audioCtx.sampleRate / analyser.fftSize;
+            
+            updateDebug(`Detected frequency: ${frequency.toFixed(2)} Hz`);
 
-    function draw() {
-        background(200);
-        fill(0);
-        textSize(16);
-        textAlign(LEFT, TOP);
-        let micLevel = mic.getLevel();
-        text(`Mic Level: ${micLevel.toFixed(3)}`, 10, 10);
-        text(`Pitch: ${currentPitch.toFixed(2)} Hz`, 10, 30);
+            requestAnimationFrame(updatePitch);
+        }
 
-        let barHeight = map(currentPitch, 50, 1000, 0, height);
-        fill(0, 0, 255);
-        rect(width / 2 - 25, height - barHeight, 50, barHeight);
-    }
-</script>
+        function visualize() {
+            if (!isDetecting) return;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+
+                canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                x += barWidth + 1;
+            }
+
+            requestAnimationFrame(visualize);
+        }
+
+        function updateDebug(message) {
+            const debugDiv = document.getElementById('debug');
+            debugDiv.innerHTML = `<p>${message}</p>`;
+        }
+    </script>
 </body>
 </html>
+
+<!--声の高さの計算、ホントに合ってる?-->
