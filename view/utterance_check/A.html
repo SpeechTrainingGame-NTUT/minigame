@@ -37,6 +37,24 @@
       border-color: #0062cc;
       color: white;
     }
+    .btn-word-display {
+      cursor: default;
+    }
+    .btn-word-display:hover, .btn-word-display:focus, .btn-word-display:active {
+      background-color: white;
+      color: #007bff;
+      border-color: #007bff;
+    }
+    input[type="checkbox"]:checked + label {
+      color: #007bff; /* 選択時の色 */
+    }
+    input[type="checkbox"] + label {
+      color: inherit; /* 選択されていない時は色を継承 */
+    }
+    .border {
+      border: 1px solid #ccc; /* デフォルトの枠の色 */
+      padding: 10px;
+    }
   </style>
 </head>
 
@@ -45,25 +63,69 @@
     <section id="initial-screen">
       <div class="row justify-content-center">
         <div class="col-md-8">
-          <h3 class="text-danger text-center mb-4">目標の正解数と制限時間を入力して、「開始」を押してください。<br>制限時間は秒単位です。</h3>
+          <h3 class="text-danger text-center mb-4">目標の正解数と制限時間を設定して、「開始」を<br>押してください。<br>チェックボックスに✓を入れると、デフォルト値を<br>設定できます。<br>デフォルト値ではない数値を設定する場合は、<br>「入力欄」で数値を入力してください。</h3>
 
           <div class="card">
             <div class="card-body">
               <div class="mb-3">
-                <label for="targetCorrect" class="form-label">目標の正解数</label>
-                <input type="number" class="form-control" id="targetCorrect" min="0">
+                <label class="form-label">目標の正解数</label>
+                <div class="border p-2">
+                  <div>
+                    <input type="checkbox" id="target1" name="targetCorrect" value="5">
+                    <label for="target1">5</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="target2" name="targetCorrect" value="10">
+                    <label for="target2">10</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="target3" name="targetCorrect" value="15">
+                    <label for="target3">15</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="target4" name="targetCorrect" value="20">
+                    <label for="target4">20</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="target5" name="targetCorrect" value="25">
+                    <label for="target5">25</label>
+                  </div>
+                </div>
+                <input type="number" id="targetInput" class="form-control" placeholder="入力欄">
               </div>
               
               <div class="mb-3">
-                <label for="timer_input" class="form-label">制限時間（秒）</label>
-                <input type="number" class="form-control" id="timer_input">
+                <label class="form-label">制限時間（秒）</label>
+                <div class="border p-2">
+                  <div>
+                    <input type="checkbox" id="time1" name="timer" value="20">
+                    <label for="time1">20</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="time2" name="timer" value="40">
+                    <label for="time2">40</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="time3" name="timer" value="60">
+                    <label for="time3">60</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="time4" name="timer" value="80">
+                    <label for="time4">80</label>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="time5" name="timer" value="100">
+                    <label for="time5">100</label>
+                  </div>
+                </div>
+                <input type="number" id="timerInput" class="form-control" placeholder="入力欄">
               </div>
 
               <button id="start-button" class="btn btn-custom-success w-100">
-                <i class="fas fa-play me-2"></i>開始
+                開始
               </button>
 
-              <p id="warning" class="text-danger mt-2 hidden">入力値が不正です</p>
+              <p id="warning" class="text-danger mt-2 hidden">設定値が不正です</p>
             </div>
           </div>
         </div>
@@ -76,7 +138,7 @@
           <div class="card">
             <div class="card-body">
               <h2 id="timerDisplay" class="text-center mb-4"></h2>
-              <button id="wordDisplay" class="btn btn-lg btn-outline-primary w-100 mb-4"></button>
+              <button id="wordDisplay" class="btn btn-lg btn-outline-primary w-100 mb-4 btn-word-display" disabled></button>
               <div id="textLog" class="alert alert-info"></div>
             </div>
           </div>
@@ -84,14 +146,13 @@
       </div>
     </section>
 
-    <!-- ホームに戻るボタンを追加 -->
     <div class="row justify-content-center mt-4">
       <div class="col-md-8">
         <div class="d-flex justify-content-between">
           <a href="check.html" class="btn btn-custom-primary">
             <i class="fas fa-arrow-left me-2"></i>戻る
           </a>
-          <a href="../index.html" class="btn btn-custom-primary">
+          <a href="../../index.html" class="btn btn-custom-primary">
             <i class="fas fa-home me-2"></i>ホーム画面へ
           </a>
         </div>

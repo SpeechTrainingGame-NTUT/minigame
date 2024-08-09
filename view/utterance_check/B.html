@@ -34,6 +34,17 @@
       border-color: #0062cc;
       color: white;
     }
+    .btn-word-display {
+      background-color: white;
+      border: 1px solid #007bff;
+      color: #007bff;
+    }
+    .btn-word-display:hover, .btn-word-display:focus, .btn-word-display:active {
+      background-color: white !important;
+      border-color: #007bff !important;
+      color: #007bff !important;
+      box-shadow: none !important;
+    }
   </style>
 </head>
 
@@ -51,7 +62,7 @@
 
       <section id="playing-screen" class="d-none">
         <div id="timerDisplay" class="mb-3 fs-4"></div>
-        <button id="wordDisplay" class="btn btn-outline-primary btn-lg w-100 mb-3"></button>
+        <button id="wordDisplay" class="btn btn-word-display btn-lg w-100 mb-3"></button>
         <div id="textLog" class="alert alert-info"></div>
         <div id="gameContainer">
           <div id="wordContainer" class="d-flex flex-wrap justify-content-center"></div>
@@ -63,7 +74,7 @@
         <a href="check.html" class="btn btn-custom-primary">
           <i class="fas fa-arrow-left me-2"></i>戻る
         </a>
-        <a href="../index.html" class="btn btn-custom-primary">
+        <a href="../../../index.html" class="btn btn-custom-primary">
           <i class="fas fa-home me-2"></i>ホーム画面へ
         </a>
       </div>

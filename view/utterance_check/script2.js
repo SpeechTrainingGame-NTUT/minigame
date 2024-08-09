@@ -116,7 +116,7 @@ startButton.addEventListener("click", function() {
 });
 
 function endGame() {
-  const url = `B_play_end.html?correct=${correctAnswers}&mistakes=${mistakes}&correctWords=${correctWordsArray.join("，")}&mistakeWords=${mistakeWordsArray.join("，")}`;
+  const url = `B_play_end.html?correct=${correctAnswers}&mistakes=${mistakes}&correctWords=${correctWordsArray.join("、")}&mistakeWords=${mistakeWordsArray.join("，")}`;
   window.location.href = url;
 }
 
