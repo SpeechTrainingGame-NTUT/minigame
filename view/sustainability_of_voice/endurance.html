@@ -9,7 +9,7 @@
   <style>
     .meter-container {
       width: 100%; /* 幅を100%に設定 */
-      max-width: 500px; /* 最大幅を500pxに設定 */
+      max-width: 1500px;
       margin: 20px auto;
       border: 1px solid black;
       position: relative;
@@ -22,20 +22,15 @@
       background: black;
       transition: width .1s;
     }
-    /*
-    .scale {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 5px;
-      font-size: 14px; フォントサイズを増加 
+    .threshold-line {
+      position: absolute;
+      height: 20px; /* ボリュームメーターの高さに合わせる */
+      width: 2px; /* 線の幅 */
+      background-color: red; /* 線の色 */
     }
-    */
-    /*
-    .scale span {
-      position: relative;
-      top: -5px; 位置を調整
+    .threshold-line.thick {
+      width: 4px; /* 太い線の幅 */
     }
-    */
     .btn-start { /*「開始」ボタン*/
       background-color: #28a745;
       border-color: #28a745;
@@ -61,34 +56,39 @@
       border: none; /* 枠線を消す */
       padding: 0; /* パディングをリセット */
     }
+    .mt-4 {
+      margin-top: 1.5rem; /* 上部のマージンを調整 */
+    }
   </style>
 </head>
 <body class="text-center">
-  <div class="container">
-    <p>どのくらい長く声を出せるか、ボリュームメーターを使って試してみましょう。</p>
+  <div class="container mt-4">
+    <p>どのくらい長く声を出せるか、ボリュームメーターを使って試してみましょう。<br>
+    発話を始めた時点で、経過時間のカウントが始まりますので、「開始」ボタンを押してください。<br>
+    リセットしたい場合は、このページをリロードしてください。</p>
     
     <label for="threshold">しきい値を選択:</label>
     <select id="threshold" class="form-select mb-3" onchange="setThreshold()">
-      <option value="0.01">天使(しきい値0.01)</option>
-      <option value="0.05">簡単(しきい値0.05)</option>
-      <option value="0.1">普通(しきい値0.1)</option>
+      <option value="0.01">天使(しきい値0.05)</option>
+      <option value="0.05">簡単(しきい値0.1)</option>
+      <option value="0.1">普通(しきい値0.3)</option>
       <option value="0.5">難しい(しきい値0.5)</option>
       <option value="1.0">地獄(しきい値1.0)</option>
     </select>
 
     <div class="meter-container">
       <div id="volume"></div>
+      <span style="position: absolute; left: 0%; top: 20px; transform: translateX(-50%); font-size: 12px;">0</span> <!-- 0の表示 -->
+      <div class="threshold-line" style="left: 5%; background-color: red;"></div> <!-- 0.05 -->
+      <span style="position: absolute; left: 5%; top: 20px; transform: translateX(-50%); font-size: 12px;">0.05</span> <!-- 0.05の表示 -->
+      <div class="threshold-line" style="left: 10%; background-color: red;"></div> <!-- 0.1 -->
+      <span style="position: absolute; left: 10%; top: 20px; transform: translateX(-50%); font-size: 12px;">0.1</span> <!-- 0.1の表示 -->
+      <div class="threshold-line" style="left: 30%; background-color: red;"></div> <!-- 0.3 -->
+      <span style="position: absolute; left: 30%; top: 20px; transform: translateX(-50%); font-size: 12px;">0.3</span> <!-- 0.3の表示 -->
+      <div class="threshold-line" style="left: 50%; background-color: red;"></div> <!-- 0.5 -->
+      <span style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); font-size: 12px;">0.5</span> <!-- 0.5の表示 -->
+      <span style="position: absolute; left: 100%; top: 20px; transform: translateX(-50%); font-size: 12px;">1.0</span> <!-- 1.0の表示 -->
     </div>
-
-    <!--
-    <div class="scale">
-      <span>0</span>
-      <span>0.01</span>
-      <span>0.1</span>
-      <span>1</span>
-      <span>2</span>
-    </div>
-    -->
 
     <p id="elapsedTime">経過時間: 0秒</p>
     
@@ -96,7 +96,7 @@
 
     <p id="output"></p>
     <button onclick="goBack()" class="no-border">
-      <a href="../../index.html" class="btn btn-custom-primary w-100">
+      <a href="../index.html" class="btn btn-custom-primary w-100">
         <i class="fas fa-home me-2"></i>ホーム画面へ
       </a>
     </button>
