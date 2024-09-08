@@ -30,22 +30,14 @@ const dataLength = Math.ceil(params.elapsedTime / interval); // データ長さ
 // adjustedVolumeData 生成後に追加
 console.log("音量データ:", params.volumeData);
 
-console.log("Elapsed Time:", params.elapsedTime);
-console.log("Interval:", interval);
-console.log("Data Length:", dataLength);
-
 // データを取得した時間に基づいて補正する
 const adjustedVolumeData = [];
 for (let i = 0; i <= dataLength; i++) {
     const time = i * interval;
-    console.log("i:", i, "time:", time);
     if (i < params.volumeData.length) {
         // 取得した音量データがある場合
         adjustedVolumeData.push(params.volumeData[i] || 0);
-    } //else {
-        //経過時間を超えた場合はゼロで埋める
-        //adjustedVolumeData.push(0);
-    //}
+    }
 }
 console.log("Adjusted Volume Data:", adjustedVolumeData);
 

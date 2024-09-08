@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>サンプル音声</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
@@ -13,49 +14,63 @@
       font-family: 'Noto Sans JP', sans-serif !important;
     }
     .content {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .content label {
-      margin-bottom: 5px;
+      margin-bottom: 20px;
       text-align: center;
     }
-    input {
-      width: 15%;
+    .content label {
+      margin-bottom: 10px;
     }
-    a{
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    a {
       display: block;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .btn-back {
+      display: inline-block;
+      margin-top: 20px;
       text-align: center;
     }
   </style>
 </head>
-<body>
-  <h2 style="text-align: center;">テキストを入力するとブラウザがしゃべります</h2>
-  <p style="text-align: center;">以下の項目で、必要に応じて変更することができます。<br>音声合成を開始したい場合は、「読み上げる」を押してください。<br>ブラウザが単語を読み間違えることがあるので、その際は片仮名で聴きたい言葉を入力してください。<br>薄い灰色で書かれているのは入力の例です。</p>
-  <p style="color:red; text-align: center;">すぐに読み上げることができない可能性があります。</p>
+<body class="container">
+  <h2 class="text-center mt-4">テキストを入力するとブラウザがしゃべります</h2>
+  <p class="text-center">以下の項目で、必要に応じて変更することができます。<br>音声合成を開始したい場合は、「読み上げる」を押してください。<br>ブラウザが単語を読み間違えることがあるので、その際は片仮名で聴きたい言葉を入力してください。<br>薄い灰色で書かれているのは入力の例です。</p>
+  
   <div class="content">
-    <label for="rate">速さ</label>
-    <input id="rate" type="number" placeholder="1" step="0.1">
+    <label for="rate">速さ(0.1 - 2.0, デフォルト：1.0)</label>
+    <input id="rate" type="number" class="form-control" step="0.1" min="0.1" max="2.0">
   </div>
+  
   <div class="content">
-    <label for="pitch">高さ</label>
-    <input id="pitch" type="number" placeholder="1" step="0.1">
+    <label for="voice">声のタイプ</label>
+    <select id="voice" class="form-select">
+      <option value="Microsoft Ayumi - Japanese (Japan)">女性の声</option>
+      <option value="Microsoft Ichiro - Japanese (Japan)">男性の声</option>
+    </select>
   </div>
-  <div class="content">
-    <label for="volume">音量</label>
-    <input id="volume" type="number" placeholder="1" step="0.1">
-  </div>
+  
   <div class="content">
     <label for="txt">聴きたい言葉</label>
-    <input id="txt" type="text" placeholder="生麦生米生卵">
+    <input id="txt" type="text" class="form-control" placeholder="生麦生米生卵">
   </div>
+  
   <div class="content">
-    <input id="btn" type="button" value="読み上げる">
+    <button id="btn" class="btn btn-primary">読み上げる</button>
   </div>
-  <a href='example.html'>ひらがな50音（例）</a>
-  <a href='../../index.html'>トップ画面へ</a> 
+  
+  <a href='example.html' class="btn btn-outline-primary">ひらがな50音（例）</a>
+  <a href='../../index.html' class="btn btn-outline-secondary">トップ画面へ</a> 
+  
+  <div class="btn-back">
+    <a href="javascript:history.back()" class="btn btn-outline-info"><i class="fas fa-arrow-left"></i> 戻る</a>
+  </div>
   
   <script>
     const btn = document.getElementById("btn");
@@ -65,16 +80,24 @@
       synth.text = txt.value;
 
       const rateInput = document.getElementById("rate");
-      const pitchInput = document.getElementById("pitch");
-      const volumeInput = document.getElementById("volume");
-
       synth.rate = parseFloat(rateInput.value) || 1.0;
-      synth.pitch = parseFloat(pitchInput.value) || 1.0;
-      synth.volume = parseFloat(volumeInput.value) || 1.0;
+
+      const voiceSelect = document.getElementById("voice").value;
+
+      const voices = window.speechSynthesis.getVoices().filter(voice =>
+       voice.name === "Microsoft Ayumi - Japanese (Japan)" || 
+       voice.name === "Microsoft Ichiro - Japanese (Japan)"
+      );
+      const selectedVoice = voices.find(voice => voice.name === voiceSelect);
+
+      if (selectedVoice) {
+        synth.voice = selectedVoice;
+      }
 
       window.speechSynthesis.speak(synth);
     });
   </script>
-  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

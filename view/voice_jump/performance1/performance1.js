@@ -22,8 +22,6 @@ const platforms = [
 let goal = { x: 780, y: 200, width: 20, height: 20 };
 let gameRunning = false;
 
-let jumpCount = 0;
-let moveCount = 0;
 let startTime;
 let volumeLog = [];
 
@@ -38,7 +36,7 @@ function drawPlayer() { // プレイヤーをキャンバスに描画
 }
 
 function updatePlayer() { // プレイヤーの位置を更新し、重力を適用
-    if (!gameRunning) return;
+    //if (!gameRunning) return;
 
     player.y += player.dy;
     if (!player.onGround) { // プレイヤーがプラットフォームに接触したかどうかをチェックし、接触していればプレイヤーの位置を調整
@@ -113,8 +111,6 @@ function resetGame() { // プレイヤーを最初の足場の上に配置し、
     }
     mediaStreamSource = null;
     meter = null;
-    jumpCount = 0;
-    moveCount = 0;
     volumeLog = [];
 }
 
@@ -131,40 +127,40 @@ resetGame();
 gameLoop();
 
 function beginDetect() {
-    if (audioContext) return;
+    //if (audioContext) return;
 
     startTime = performance.now(); // 開始時間を記録
 
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext = new (window.AudioContext);
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
             mediaStreamSource = audioContext.createMediaStreamSource(stream);
-            meter = createAudioMeter(audioContext);
-            mediaStreamSource.connect(meter);
-            gameRunning = true;
-            hideMessage();
+            createAudioMeter(audioContext).then(meter => {
+                meter.connect(audioContext.destination);
+                mediaStreamSource.connect(meter);
+                gameRunning = true;
+                console.log("Game started"); // ゲーム開始をコンソールに表示
+                const timeElapsed = window.performance.now() - startTime;
+                console.log("Time elapsed since start button pressed:", timeElapsed.toFixed(2), "ms"); // 経過時間を表示
 
-            volumeLoggingInterval = setInterval(() => {
-                    const volume = meter.volume.toFixed(5);
-                    console.log("Current volume:", volume);
-                    volumeLog.push(parseFloat(volume)); // ボリューム値を記録
-            }, 50);             
+                hideMessage();                
+            });      
         });
     }
 }
 
-
 function createAudioMeter(audioContext, clipLevel, averaging, clipLag) { // ボリュームを測るためのものを作成
     const processor = audioContext.createScriptProcessor(512);
-    processor.onaudioprocess = volumeAudioProcess;
+    processor.onaudioprocess = VolumeAudioProcessor;
     processor.clipping = false;
     processor.lastClip = 0;
     processor.volume = 0;
     processor.clipLevel = clipLevel || 0.98;
-    processor.averaging = averaging || 0.50;
+    processor.averaging = averaging || 0.95;
     processor.clipLag = clipLag || 750;
     processor.connect(audioContext.destination);
 
+    /*
     processor.checkClipping = function () {
         if (!this.clipping) return false;
         if ((this.lastClip + this.clipLag) < window.performance.now()) {
@@ -177,43 +173,16 @@ function createAudioMeter(audioContext, clipLevel, averaging, clipLag) { // ボ�
         this.disconnect();
         this.onaudioprocess = null;
     };
+    */
 
     return processor;
 }
 
-function volumeAudioProcess(event) { // マイク入力のボリュームを処理し、音量がしきい値（声の認識が始まる声の大きさ）を超えた場合にプレイヤーがジャンプしたり、前進したりできる
-    if (!gameRunning) return;
-
-    const buf = event.inputBuffer.getChannelData(0);
-    const bufLength = buf.length;
-    let sum = 0;
-    let x;
-
-    for (var i = 0; i < bufLength; i++) {
-        x = buf[i];
-        if (Math.abs(x) >= this.clipLevel) {
-            this.clipping = true;
-            this.lastClip = window.performance.now();
-        }
-        sum += x * x;
-    }
-    const rms = Math.sqrt(sum / bufLength);
-    this.volume = Math.max(rms, this.volume * this.averaging);
-
-    // 更新されたボリュームバーの幅を計算して設定
-    volumeBar.style.width = (this.volume * 100) + '%';
-
-    // 音量レベルに応じたプレイヤーの動作を制御
-    if (this.volume >= 0.1 && player.onGround) {
-        player.dy = -player.jumpPower;
-        player.onGround = false;
-        jumpCount++; // ジャンプ回数をカウント
-        console.log("Jump triggered at volume:", this.volume.toFixed(5));
-    } else if (this.volume > 0.01 && this.volume < 0.1) { // ボリュームが0.01を超え、0.1以下の場合に進む
-        player.x += player.speed;
-        moveCount++; // 進行回数をカウント
-        console.log("Move forward at volume:", this.volume.toFixed(5));
-    }
+// AudioWorkLetNodeを作成する関数
+async function createAudioMeter(audioContext) {
+    await audioContext.audioWorklet.addModule('volume-audio-processor.js');
+    const meterNode = new AudioWorkletNode(audioContext, 'volume-audio-processor');
+    return meterNode;
 }
 
 function endGame() {
@@ -227,38 +196,20 @@ function endGame() {
         clearInterval(volumeLoggingInterval);
         volumeLoggingInterval = null;
     }
+    console.log("Game ended");
 
-    const elapsedTime = (performance.now() - startTime) / 1000; // ゲームプレイ時間を記録
-    const avgVolume = volumeLog.reduce((sum, volume) => sum + volume, 0) / volumeLog.length; // 平均音量を計算
-    console.log("Game ended. Jump count:", jumpCount, "Move count:", moveCount, "Elapsed time:", elapsedTime, "Average volume:", avgVolume.toFixed(5));
-
-    // 結果をクエリパラメータとしてエンコードして遷移
-    const queryParams = new URLSearchParams({
-        jumpCount: jumpCount,
-        moveCount: moveCount,
-        elapsedTime: elapsedTime.toFixed(2),
-        avgVolume: avgVolume.toFixed(5),
-        volumeData: volumeLog.join(',')
-    });
-
-    window.location.href = 'performance1_result.html?' + queryParams.toString();
+    // 結果画面に遷移
+    const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
+    const volumeDataString = volumeLog.join(',');
+    const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&volumeData=${volumeDataString}`;
+    window.location.href = resultURL;
 }
 
 function showMessage(message) {
-    messageElement.innerText = message;
+    messageElement.textContent = message;
     messageElement.style.display = 'block';
 }
 
 function hideMessage() {
     messageElement.style.display = 'none';
 }
-
-document.getElementById('startButton').addEventListener('click', () => {
-    resetGame();
-    beginDetect();
-});
-
-// JavaScriptでトップ画面へ遷移する処理を追加
-document.getElementById('topButton').addEventListener('click', function() {
-    window.location.href = '../../../index.html'; // 適切なパスに変更してください
-});
