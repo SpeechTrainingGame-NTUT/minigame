@@ -249,7 +249,7 @@ function endGame(isCleared) {
         const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
 
         //結果画面に取得したコインの数と総コイン数を送信
-        const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}&totalCoins=${totalCoins}`;
+        const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}`;
         window.location.href = resultURL;
     }else{
         //ゲームオーバーの場合、プレイ画面にリロード

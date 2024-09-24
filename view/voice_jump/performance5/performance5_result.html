@@ -3,22 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>結果画面</title>
+    <title>ラン&ジャンプ レベル5 結果</title>
     <style>
-        body{text-align: center;}
-        * { font-family: 'Noto Sans JP', sans-serif !important; }
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        * { 
+            font-family: 'Noto Sans JP', sans-serif !important;
+            box-sizing: inherit;
+        }
+        #result {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.jsのスクリプトを追加 -->
 </head>
 <body>
     <div id="result">
-        <h1>ラン&ジャンプ 結果</h1>
-        <p>経過時間: <span id="elapsedTime"></span>秒</p>
-        <h2>音量グラフ</h2>
-        <canvas id="volumeChart" width="800" height="160"></canvas> <!-- グラフ描画用の<canvas>要素 -->
+        <h1>レベル5 結果</h1>
+        <div id="message"></div>
+        <p>経過時間: <span id="elapsedTime"></span>秒 (ランク: <span id="timeRank"></span>)</p>
+        <p id="coinRate"></p>
         <button onclick="location.href='performance5.html'">再挑戦</button>
+        <button onclick="location.href='../explain.html'">別のレベルに挑戦</button>
         <button onclick="location.href='../../../index.html'">トップ画面へ</button>
     </div>
-    <script src="performance5_result.js"></script>
+    <script>
+        // URLから経過時間とコイン数を取得
+        const params = new URLSearchParams(window.location.search);
+        const elapsedTime = parseFloat(params.get('elapsedTime'));
+        const collectedCoins = parseInt(params.get('collectedCoins'), 10);
+        const totalCoins = parseInt(params.get('totalCoins'), 10);
+
+        document.getElementById('elapsedTime').textContent = elapsedTime.toFixed(2);
+        document.getElementById('coinRate').textContent = `獲得したコイン: ${collectedCoins}枚 (ランク: ${getCoinRank(collectedCoins)})`;
+
+        const timeRank = getTimeRank(elapsedTime);
+        document.getElementById('timeRank').textContent = timeRank;
+
+        // メッセージを表示
+        const messageElement = document.getElementById('message');
+        if (timeRank === 'D' || getCoinRank(collectedCoins, totalCoins) === 'D') {
+            messageElement.textContent = "もう少し頑張りましょう";
+        } else {
+            messageElement.textContent = "クリアおめでとうございます";
+        }
+
+        function getTimeRank(time) {
+            if (time <= 10) return 'S';
+            if (time <= 15) return 'A';
+            if (time <= 20) return 'B';
+            if (time <= 25) return 'C';
+            return 'D';
+        }
+
+        function getCoinRank(collected) {
+            const rate = collected;
+            if (rate >= 9) return 'S';
+            if (rate >= 8) return 'A';
+            if (rate >= 7) return 'B';
+            if (rate >= 6) return 'C';
+            return 'D';
+        }
+    </script>
 </body>
 </html>

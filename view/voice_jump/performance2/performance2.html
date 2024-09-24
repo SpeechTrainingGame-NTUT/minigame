@@ -1,21 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ラン&ジャンプ</title>
+    <title>ラン&ジャンプ レベル2</title>
     <style>
-        body {
-            text-align: center;
-        }
-        canvas {
-            border: 1px solid black;
-            display: block;
-            margin: 0 auto;
-        }
-        * {
-            font-family: 'Noto Sans JP', sans-serif !important;
-        }
+        body { text-align: center; }
+        canvas { border: 1px solid black; display: block; margin: 0 auto; }
+        * { font-family: 'Noto Sans JP', sans-serif !important; }
         #message {
             font-size: 2px;
             font-weight: bold;
@@ -23,19 +15,20 @@
             margin-top: 20px;
         }
         /* バーのスタイル */
-        #volume-bar-container {
-            width: 80%;
+        .volume-bar-container {
+            width: 80%; /* 幅を100%に設定 */
             max-width: 1500px;
-            margin: 20 auto;
+            margin: 20px auto;
             border: 1px solid black;
             position: relative;
             height: 20px;
         }
         #volume-bar {
             position: absolute;
-            height: 100%;
             left: 0;
+            height: 100%;
             background: black;
+            /*transition: width .1s;*/
         }
         /* 目盛り線のスタイル */
         .marker {
@@ -62,14 +55,11 @@
     </style>
 </head>
 <body>
-    <p>こちらはレベル2です。<br><a
-            href='../performance1/performance1.html'>レベル1はこちらへ</a><br><a href='../performance3/performance3.html'>レベル3はこちらへ</a><br><a
-            href='../performance4/performance4.html'>レベル4はこちらへ</a><br><a href='../performance5/performance5.html'>レベル5はこちらへ</a></p>
+    <p>こちらはレベル2です。<br><a href='../performance1/performance1.html'>レベル1はこちらへ</a><br><a href='../performance3/performance3.html'>レベル3はこちらへ</a><br><a href='../performance4/performance4.html'>レベル4はこちらへ</a><br><a href='../performance5/performance5.html'>レベル5はこちらへ</a><br></p>    
     <button id="startButton" onclick="beginDetect()">スタート</button>
     <button onclick="location.href='../../../index.html'">トップ画面へ</button>
-    <div id="volume-bar-container">
-        <div id="volume-bar"></div>
-        <!-- 目盛り線の追加 -->
+    <div class="volume-bar-container">
+        <div id="volume-bar"></div>        
         <div class="marker marker-0-01"></div>
         <div class="label label-0-01">0.01</div>
         <div class="marker marker-0-1"></div>

@@ -8,10 +8,10 @@ const player = {
     y: 0, 
     width: 20,
     height: 20,
-    speed: 3,
-    jumpPower: 10,
-    dy: 0, //垂直方向の速度
-    onGround: true //地面にいるかどうか
+    speed: 0.75,
+    jumpPower: 14, //この値は変えないように（15だと画面をはみ出してしまう）
+    dy: 0, 
+    onGround: true 
 };
 
 const gravity = 0.5; 
@@ -257,7 +257,7 @@ function endGame(isCleared) {
         const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
 
         //結果画面に取得したコインの数と総コイン数を送信
-        const resultURL = `performance2_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}&totalCoins=${totalCoins}`;
+        const resultURL = `performance2_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}`;
         window.location.href = resultURL;
     }else{
         //ゲームオーバーの場合、プレイ画面にリロード
