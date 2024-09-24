@@ -1,55 +1,79 @@
-// 変数の宣言を上部に移動
-const canvas = document.getElementById('gameCanvas'); // キャンバスの初期化
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const messageElement = document.getElementById('message');
 const volumeBar = document.getElementById('volume-bar');
 
-const player = { // プレイヤーの初期化
+const player = {
     x: 0, 
     y: 0, 
     width: 20,
     height: 20,
-    speed: 3,
-    jumpPower: 10,
-    dy: 0, // 垂直方向の速度
-    onGround: true // 地面にいるかどうか
+    speed: 0.75,
+    jumpPower: 14, //この値は変えないように（15だと画面をはみ出してしまう）
+    dy: 0,
+    onGround: true
 };
 
 const gravity = 0.5; 
-const platforms = [
-    { x: 0, y: 220, width: 1000, height: 1000 }
-];
+const platforms = [{ x: 0, y: 220, width: 1000, height: 1000 }];
 let goal = { x: 780, y: 200, width: 20, height: 20 };
 let gameRunning = false;
 
+// コインの位置とサイズ
+let coins = [
+    // 空中のコイン
+    { x: 150, y: 180, radius: 8 },
+    { x: 230, y: 60, radius: 8 },
+    { x: 500, y: 30, radius: 8 },
+
+    // 足場のコイン
+    { x: 400, y: platforms[0].y - 8, radius: 8 },   
+    { x: 700, y: platforms[0].y - 8, radius: 8 }
+];
+
 let startTime;
 let volumeLog = [];
+let audioContext = null;
+let mediaStreamSource = null;
+let meterNode = null; // meterNode を初期化
+let volumeLoggingInterval = null;
 
-let audioContext = null; // オーディオコンテキスト
-let mediaStreamSource = null; // メディアストリームソース
-let meter = null; // オーディオメーター
-let volumeLoggingInterval = null; // ボリュームログのインターバル
+let stableVolumeDuration = 0;
+let lastStableVolumeTime = 0;
 
-function drawPlayer() { // プレイヤーをキャンバスに描画
+function drawPlayer() {
     ctx.fillStyle = 'blue';
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-function updatePlayer() { // プレイヤーの位置を更新し、重力を適用
-    //if (!gameRunning) return;
+// コインを描画
+function drawCoins() {
+    coins.forEach(coin => {
+        ctx.beginPath();
+        ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
+        ctx.closePath();
+    });
+}
+
+function updatePlayer() {
+    if (!gameRunning) return;
 
     player.y += player.dy;
-    if (!player.onGround) { // プレイヤーがプラットフォームに接触したかどうかをチェックし、接触していればプレイヤーの位置を調整
-        player.dy += gravity;
+
+    if (!player.onGround) {
+        player.dy += gravity; // 重力の影響を追加
     }
 
     let onAnyPlatform = false;
-
     platforms.forEach(platform => {
-        if (player.x < platform.x + platform.width &&
+        if (
+            player.x < platform.x + platform.width &&
             player.x + player.width > platform.x &&
             player.y + player.height <= platform.y + 10 &&
-            player.y + player.height >= platform.y) {
+            player.y + player.height >= platform.y
+        ) {
             player.y = platform.y - player.height;
             player.dy = 0;
             player.onGround = true;
@@ -61,46 +85,78 @@ function updatePlayer() { // プレイヤーの位置を更新し、重力を適
         player.onGround = false;
     }
 
-    if (player.y + player.height > canvas.height) { // プレイヤーが足場から落ちたらゲームオーバー
+    //プレイヤーが画面の下に落ちたらゲームオーバー
+    if (player.y + player.height > canvas.height) {
+        player.y = canvas.height - player.height;
+        player.dy = 0;
         showMessage("ゲームオーバー！");
-        endGame();
+        endGame(false); //ゲームオーバーの場合、結果画面にいかない
     }
 
-    // ゴール判定
-    if (player.x < goal.x + goal.width &&
+    if (player.y + player.height < 0) {
+        player.y = 0;
+        player.dy = 0;
+    }
+
+    //ゴールに到達したらクリア
+    if (
+        player.x < goal.x + goal.width &&
         player.x + player.width > goal.x &&
         player.y + player.height > goal.y &&
-        player.y < goal.y + goal.height) { 
+        player.y < goal.y + goal.height
+    ) {
         showMessage("ゴールしました！");
-        endGame();
+        endGame(true); //クリアした場合、結果画面にいく
     }
 
-    // プレイヤーがゴールを超えたかどうかのチェック
+    //プレイヤーがゴールを通り過ぎたらゲームオーバー
     if (player.x > goal.x + goal.width) {
         showMessage("ゲームオーバー！");
-        endGame();
+        endGame(false); //ゲームオーバーの場合、結果画面にいかない
     }
+
+    checkCoinCollision();  // コインとの衝突を確認
 }
 
-function drawPlatforms() { // プラットフォームの描画
+let collectedCoins = 0; // コインの取得数を記録する変数
+const totalCoins = coins.length; // 総コイン数を記録
+
+// コインとの衝突を確認
+function checkCoinCollision() {
+    coins = coins.filter(coin => {
+        const distX = player.x + player.width / 2 - coin.x;
+        const distY = player.y + player.height / 2 - coin.y;
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        if (distance < coin.radius + player.width / 2) {
+            console.log("コインを取得しました！");
+            collectedCoins++; // コイン取得数を増加
+            return false; // コインを削除
+        }
+        return true; // コインを保持
+    });
+}
+
+function drawPlatforms() {
     ctx.fillStyle = 'black';
     platforms.forEach(platform => {
         ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     });
 }
 
-function drawGoal() { // ゴールの描画
+function drawGoal() {
     ctx.fillStyle = 'red';
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
 }
 
-function resetGame() { // プレイヤーを最初の足場の上に配置し、初期状態に戻す
+function resetGame() {
     const firstPlatform = platforms[0];
     player.x = firstPlatform.x;
     player.y = firstPlatform.y - player.height;
     player.dy = 0;
     player.onGround = true;
     gameRunning = false;
+
     if (audioContext) {
         audioContext.close();
         audioContext = null;
@@ -109,83 +165,73 @@ function resetGame() { // プレイヤーを最初の足場の上に配置し、
         clearInterval(volumeLoggingInterval);
         volumeLoggingInterval = null;
     }
+
     mediaStreamSource = null;
-    meter = null;
+    meterNode = null;
     volumeLog = [];
 }
 
-function gameLoop() { // キャンバスを消して、プレイヤーの描画と更新を繰り返す
+function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer();
     drawPlatforms();
     drawGoal();
+    drawCoins(); // コインを描画
     updatePlayer();
-    requestAnimationFrame(gameLoop); // ループが続く
+    requestAnimationFrame(gameLoop);
 }
 
 resetGame();
 gameLoop();
 
 function beginDetect() {
-    //if (audioContext) return;
+    startTime = performance.now();
 
-    startTime = performance.now(); // 開始時間を記録
-
-    audioContext = new (window.AudioContext);
+    audioContext = new (window.AudioContext)();
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
             mediaStreamSource = audioContext.createMediaStreamSource(stream);
-            createAudioMeter(audioContext).then(meter => {
-                meter.connect(audioContext.destination);
-                mediaStreamSource.connect(meter);
-                gameRunning = true;
-                console.log("Game started"); // ゲーム開始をコンソールに表示
-                const timeElapsed = window.performance.now() - startTime;
-                console.log("Time elapsed since start button pressed:", timeElapsed.toFixed(2), "ms"); // 経過時間を表示
+            gameRunning = true;
+            createAudioMeter(audioContext).then(node => {
+                meterNode = node;
+                meterNode.port.onmessage = (event) => {
+                    const volume = event.data.volume;
+                    console.log('Current volume:', volume);
+                    volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
-                hideMessage();                
-            });      
+                    if (typeof volume === 'number' && !isNaN(volume)) {
+                        volumeLog.push(Number(volume).toFixed(3));
+                    }
+
+                    if (volume > 0.1 && player.onGround) {
+                        // ジャンプの高さは音量に基づいて計算し、最大14に制限
+                        const jumpPowerBasedOnVolume = Math.min(player.jumpPower * volume * 10, 14);
+                        player.dy = -jumpPowerBasedOnVolume;
+                        player.onGround = false;
+                        player.jumpStartTime = performance.now();
+                        const jumpDuration = (performance.now() - player.jumpStartTime) / 1000;
+                        player.x += player.speed * jumpDuration;
+                    } else if (volume < 0.1 && volume >= 0.01) {
+                        player.x += player.speed;
+                    }         
+                };
+                mediaStreamSource.connect(meterNode);
+                console.log("Game started");
+                const timeElapsed = window.performance.now() - startTime;
+                console.log("Time elapsed since start button pressed:", timeElapsed.toFixed(2), "ms");
+                hideMessage();
+            });
         });
     }
 }
 
-function createAudioMeter(audioContext, clipLevel, averaging, clipLag) { // ボリュームを測るためのものを作成
-    const processor = audioContext.createScriptProcessor(512);
-    processor.onaudioprocess = VolumeAudioProcessor;
-    processor.clipping = false;
-    processor.lastClip = 0;
-    processor.volume = 0;
-    processor.clipLevel = clipLevel || 0.98;
-    processor.averaging = averaging || 0.95;
-    processor.clipLag = clipLag || 750;
-    processor.connect(audioContext.destination);
-
-    /*
-    processor.checkClipping = function () {
-        if (!this.clipping) return false;
-        if ((this.lastClip + this.clipLag) < window.performance.now()) {
-            this.clipping = false;
-        }
-        return this.clipping;
-    };
-
-    processor.shutdown = function () {
-        this.disconnect();
-        this.onaudioprocess = null;
-    };
-    */
-
-    return processor;
-}
-
-// AudioWorkLetNodeを作成する関数
 async function createAudioMeter(audioContext) {
     await audioContext.audioWorklet.addModule('volume-audio-processor.js');
     const meterNode = new AudioWorkletNode(audioContext, 'volume-audio-processor');
     return meterNode;
 }
 
-function endGame() {
+function endGame(isCleared) {
     gameRunning = false;
 
     if (audioContext) {
@@ -198,11 +244,17 @@ function endGame() {
     }
     console.log("Game ended");
 
-    // 結果画面に遷移
-    const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
-    const volumeDataString = volumeLog.join(',');
-    const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&volumeData=${volumeDataString}`;
-    window.location.href = resultURL;
+    if(isCleared){
+        //クリアした場合、結果画面に遷移
+        const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
+
+        //結果画面に取得したコインの数と総コイン数を送信
+        const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}&totalCoins=${totalCoins}`;
+        window.location.href = resultURL;
+    }else{
+        //ゲームオーバーの場合、プレイ画面にリロード
+        window.location.reload();
+    }
 }
 
 function showMessage(message) {

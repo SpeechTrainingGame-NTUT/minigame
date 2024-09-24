@@ -24,20 +24,18 @@
         }
         /* バーのスタイル */
         #volume-bar-container {
-            position: relative;
             width: 80%;
-            margin: 0 auto;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 30px; /* ラベルのスペースを確保 */
-            height: 20px; /* バーの高さ */
+            max-width: 1500px;
+            margin: 20 auto;
+            border: 1px solid black;
+            position: relative;
+            height: 20px;
         }
         #volume-bar {
+            position: absolute;
             height: 100%;
-            width: 0;
-            background: #76c7c0;
-            transition: width 0.1s;
+            left: 0;
+            background: black;
         }
         /* 目盛り線のスタイル */
         .marker {
@@ -68,7 +66,7 @@
             href='../performance1/performance1.html'>レベル1はこちらへ</a><br><a href='../performance3/performance3.html'>レベル3はこちらへ</a><br><a
             href='../performance4/performance4.html'>レベル4はこちらへ</a><br><a href='../performance5/performance5.html'>レベル5はこちらへ</a></p>
     <button id="startButton" onclick="beginDetect()">スタート</button>
-    <button id="topButton">トップ画面へ</button>
+    <button onclick="location.href='../../../index.html'">トップ画面へ</button>
     <div id="volume-bar-container">
         <div id="volume-bar"></div>
         <!-- 目盛り線の追加 -->
@@ -79,6 +77,7 @@
     </div>
     <h2></h2>
     <div id="message"></div>
+    
     <canvas id="gameCanvas" width="800" height="350"></canvas>
     <script src="performance2.js"></script>
 </body>
