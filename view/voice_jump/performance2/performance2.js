@@ -26,7 +26,7 @@ let gameRunning = false;
 let coins = [
     // 空中のコイン
     { x: 150, y: 50, radius: 8 }, 
-    { x: 280, y: 180, radius: 8 }, 
+    { x: 280, y: 90, radius: 8 }, 
     { x: 470, y: 30, radius: 8 }, 
     { x: 570, y: 60, radius: 8 }, 
     { x: 680, y: 40, radius: 8 }, 
