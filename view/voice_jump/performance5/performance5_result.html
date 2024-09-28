@@ -5,93 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ラン&ジャンプ レベル5 結果</title>
     <style>
-        body {
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        * { 
+        * {
             font-family: 'Noto Sans JP', sans-serif !important;
-            box-sizing: inherit;
+            text-align: center;
         }
-        #result {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        canvas {
-            max-width: 100%;
-            height: auto;
-        }
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-            h2 {
-                font-size: 20px;
-            }
-            button {
-                display: block;
-                width: 100%;
-                margin: 10px 0;
-            }
+        .rank-underline {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div id="result">
-        <h1>レベル5 結果</h1>
-        <div id="message"></div>
-        <p>経過時間: <span id="elapsedTime"></span>秒 (ランク: <span id="timeRank"></span>)</p>
-        <p id="coinRate"></p>
-        <button onclick="location.href='performance5.html'">再挑戦</button>
-        <button onclick="location.href='../explain.html'">別のレベルに挑戦</button>
-        <button onclick="location.href='../../../index.html'">トップ画面へ</button>
-    </div>
+    <h1>レベル5 結果</h1>
+    <div id="result-message"></div>
+    <div id="time-result"></div> <!-- この要素が存在することを確認 -->
+    <div id="coin-result"></div> <!-- この要素が存在することを確認 -->
+    <button onclick="location.href='performance5.html'">再挑戦</button>
+    <button onclick="location.href='../explain.html'">別のレベルに挑戦</button>
+    <button onclick="location.href='../../../index.html'">トップ画面へ</button>
     <script>
-        // URLから経過時間とコイン数を取得
-        const params = new URLSearchParams(window.location.search);
-        const elapsedTime = parseFloat(params.get('elapsedTime'));
-        const collectedCoins = parseInt(params.get('collectedCoins'), 10);
-        const totalCoins = parseInt(params.get('totalCoins'), 10);
+        // URLからクエリパラメータを取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const elapsedTime = parseFloat(urlParams.get('elapsedTime'));
+        const coinScore = parseInt(urlParams.get('coinScore')); // collectedCoins は削除
 
-        document.getElementById('elapsedTime').textContent = elapsedTime.toFixed(2);
-        document.getElementById('coinRate').textContent = `獲得したコイン: ${collectedCoins}枚 (ランク: ${getCoinRank(collectedCoins)})`;
+        // 各コインの獲得枚数を取得
+        const redCoins = parseInt(urlParams.get('redCoins'));
+        const blueCoins = parseInt(urlParams.get('blueCoins'));
+        const yellowCoins = parseInt(urlParams.get('yellowCoins'));
 
-        const timeRank = getTimeRank(elapsedTime);
-        document.getElementById('timeRank').textContent = timeRank;
-
-        // メッセージを表示
-        const messageElement = document.getElementById('message');
-        if (timeRank === 'D' || getCoinRank(collectedCoins, totalCoins) === 'D') {
-            messageElement.textContent = "もう少し頑張りましょう";
+        // 時間ランクの判定
+        let timeRank;
+        if (elapsedTime <= 7.0) {
+            timeRank = 'S';
+        } else if (elapsedTime <= 10.0) {
+            timeRank = 'A';
+        } else if (elapsedTime <= 15.0) {
+            timeRank = 'B';
+        } else if (elapsedTime <= 20.0) {
+            timeRank = 'C';
         } else {
+            timeRank = 'D';
+        }
+
+        // コインスコアのランクの判定
+        let coinRank;
+        if (coinScore >= 90) {
+            coinRank = 'S';
+        } else if (coinScore >= 80) {
+            coinRank = 'A';
+        } else if (coinScore >= 70) {
+            coinRank = 'B';
+        } else if (coinScore >= 60) {
+            coinRank = 'C';
+        } else {
+            coinRank = 'D';
+        }
+
+        // クリアメッセージの表示ロジック
+        let messageElement = document.getElementById("result-message");
+
+        if (timeRank !== "D" && coinRank !== "D") {
+            // 両方ともCランク以上の場合、クリアメッセージを表示
             messageElement.textContent = "クリアおめでとうございます";
+            messageElement.classList.remove('fail-message'); // 失敗メッセージのクラスを削除
+        } else {
+            // どちらかがDランクの場合、失敗メッセージを表示
+            messageElement.textContent = "もう少し頑張りましょう";
+            messageElement.classList.add('fail-message'); // 失敗メッセージのスタイルを適用
         }
 
-        function getTimeRank(time) {
-            if (time <= 10) return 'S';
-            if (time <= 15) return 'A';
-            if (time <= 20) return 'B';
-            if (time <= 25) return 'C';
-            return 'D';
-        }
+        // 結果を表示する要素が存在するか確認
+        const timeResultElement = document.getElementById('time-result');
+        const coinResultElement = document.getElementById('coin-result');
 
-        function getCoinRank(collected) {
-            const rate = collected;
-            if (rate >= 9) return 'S';
-            if (rate >= 8) return 'A';
-            if (rate >= 7) return 'B';
-            if (rate >= 6) return 'C';
-            return 'D';
+        if (timeResultElement && coinResultElement) {
+            // 時間とコインスコアを表示 (ランクに下線を追加)
+            timeResultElement.innerHTML = `所要時間: ${elapsedTime} 秒 <span class="rank-underline">${timeRank}ランク</span>`;
+            coinResultElement.innerHTML = `コインスコア: ${coinScore} (赤: ${redCoins}, 青: ${blueCoins}, 黄: ${yellowCoins}) <span class="rank-underline">${coinRank}ランク</span>`;
+        } else {
+            console.error('結果を表示する要素が見つかりません');
         }
     </script>
 </body>

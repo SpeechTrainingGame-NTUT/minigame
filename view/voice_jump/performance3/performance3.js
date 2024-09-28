@@ -22,21 +22,20 @@ const platforms = [
 let goal = { x: 780, y: 200, width: 20, height: 20 };
 let gameRunning = false;
 
-//コインの位置とサイズ
-let coins = [
-    // 空中のコイン
-    { x: 110, y: 120, radius: 8 }, 
-    { x: 200, y: 60, radius: 8 }, 
-    { x: 480, y: 30, radius: 8 }, 
-    { x: 610, y: 90, radius: 8 },
-    { x: 690, y: 50, radius: 8 },
+// 各コインの色とポイントの定義
+let coinData = [
+    { x: 280, y: platforms[0].y - 8, radius: 8, color: 'red', points: 10 },
+    { x: 420, y: platforms[1].y - 8, radius: 8, color: 'red', points: 10 },
 
-    // 足場のコイン
-    { x: 60, y: platforms[0].y - 8, radius: 8 }, 
-    { x: 292, y: platforms[0].y - 8, radius: 8 },    
-    { x: 440, y: platforms[0].y - 8, radius: 8 }, 
-    { x: 550, y: platforms[0].y - 8, radius: 8 }, 
-    { x: 740, y: platforms[1].y - 8, radius: 8 } 
+    { x: 230, y: 60, radius: 8, color: 'blue', points: 30 },
+    { x: 330, y: 40, radius: 8, color: 'blue', points: 30 },
+
+    { x: 150, y: 150, radius: 8, color: 'yellow', points: 10 },
+    { x: 70, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
+    { x: 500, y: 30, radius: 8, color: 'yellow', points: 20 },
+    { x: 600, y: platforms[1].y - 8, radius: 8, color: 'yellow', points: 10 },
+    { x: 650, y: 80, radius: 8, color: 'yellow', points: 20 },
+    { x: 700, y: platforms[1].y - 8, radius: 8, color: 'yellow', points: 10 }
 ];
 
 let startTime;
@@ -45,21 +44,18 @@ let audioContext = null;
 let mediaStreamSource = null;
 let meterNode = null; // meterNode を初期化
 let volumeLoggingInterval = null;
-
-let stableVolumeDuration = 0;
-let lastStableVolumeTime = 0;
+let coinScore = 0; // グローバルに移動
 
 function drawPlayer() {
     ctx.fillStyle = 'blue';
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-// コインを描画
 function drawCoins() {
-    coins.forEach(coin => {
+    coinData.forEach(coin => {
         ctx.beginPath();
         ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'yellow';
+        ctx.fillStyle = coin.color;
         ctx.fill();
         ctx.closePath();
     });
@@ -126,8 +122,7 @@ function updatePlayer() {
     checkCoinCollision();  // コインとの衝突を確認
 }
 
-let collectedCoins = 0; // コインの取得数を記録する変数
-const totalCoins = coins.length; // 総コイン数を記録
+let collectedCoins = { red: 0, blue: 0, yellow: 0 }; // 各色のコインのカウント
 
 // コインとの衝突を確認
 function checkCoinCollision() {
@@ -196,73 +191,72 @@ function beginDetect() {
     startTime = performance.now();
 
     audioContext = new (window.AudioContext)();
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            mediaStreamSource = audioContext.createMediaStreamSource(stream);
-            gameRunning = true;
-            createAudioMeter(audioContext).then(node => {
-                meterNode = node;
-                meterNode.port.onmessage = (event) => {
-                    const volume = event.data.volume;
-                    console.log('Current volume:', volume);
-                    volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
-                    if (typeof volume === 'number' && !isNaN(volume)) {
-                        volumeLog.push(Number(volume).toFixed(3));
-                    }
+    audioContext.audioWorklet.addModule('volume-processor.js')
+        .then(() => {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                    mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                    gameRunning = true;
+                    createAudioMeter(audioContext).then(meterNode => {  // scriptNode -> meterNode に変更
+                        meterNode.port.onmessage = (event) => {
+                            const volume = event.data.volume;
+                            console.log('Current PEAK volume:', volume);
+                            volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
-                    if (volume > 0.1 && player.onGround) {
-                        // ジャンプの高さは音量に基づいて計算し、最大14に制限
-                        const jumpPowerBasedOnVolume = Math.min(player.jumpPower * volume * 10, 14);
-                        player.dy = -jumpPowerBasedOnVolume;
-                        player.onGround = false;
-                        player.jumpStartTime = performance.now();
-                        const jumpDuration = (performance.now() - player.jumpStartTime) / 1000;
-                        player.x += player.speed * jumpDuration;
-                    } else if (volume < 0.1 && volume >= 0.01) {
-                        player.x += player.speed;
-                    }         
-                };
-                mediaStreamSource.connect(meterNode);
-                console.log("Game started");
-                const timeElapsed = window.performance.now() - startTime;
-                console.log("Time elapsed since start button pressed:", timeElapsed.toFixed(2), "ms");
-                hideMessage();
-            });
+                            if (typeof volume === 'number' && !isNaN(volume)) {
+                                volumeLog.push(Number(volume).toFixed(3));
+                            }
+
+                            // キャラクターの動きを定義する部分
+                            if (volume > 0.1 && player.onGround) {
+                                const jumpPowerBasedOnVolume = Math.min(player.jumpPower * volume * 10, 14);
+                                player.dy = -jumpPowerBasedOnVolume;
+                                player.onGround = false;
+                                player.jumpStartTime = performance.now();
+                                const jumpDuration = (performance.now() - player.jumpStartTime) / 1000;
+                                player.x += player.speed * jumpDuration;
+                            } else if (volume < 0.1 && volume >= 0.01) {
+                                player.x += player.speed;
+                            }
+                        };
+                    });
+                });
+            } else {
+                alert("マイクの取得に失敗しました。");
+            }
+        })
+        .catch((error) => {
+            console.error('AudioWorklet module could not be loaded:', error);
         });
-    }
 }
 
-async function createAudioMeter(audioContext) {
-    await audioContext.audioWorklet.addModule('volume-audio-processor.js');
-    const meterNode = new AudioWorkletNode(audioContext, 'volume-audio-processor');
-    return meterNode;
+function createAudioMeter(audioContext) {
+    return new Promise((resolve) => {
+        const meterNode = new AudioWorkletNode(audioContext, 'volume-processor');
+        mediaStreamSource.connect(meterNode);
+        meterNode.connect(audioContext.destination);
+        resolve(meterNode);  // scriptNode -> meterNode に変更
+    });
 }
 
 function endGame(isCleared) {
     gameRunning = false;
-
-    if (audioContext) {
-        audioContext.close();
-        audioContext = null;
-    }
-    if (volumeLoggingInterval) {
-        clearInterval(volumeLoggingInterval);
-        volumeLoggingInterval = null;
-    }
-    console.log("Game ended");
-
-    if(isCleared){
+    if (isCleared) {
         //クリアした場合、結果画面に遷移
         const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
 
         //結果画面に取得したコインの数と総コイン数を送信
-        const resultURL = `performance3_result.html?elapsedTime=${elapsedTime}&collectedCoins=${collectedCoins}`;
+        const resultURL = `performance3_result.html?elapsedTime=${elapsedTime}&coinScore=${coinScore}&redCoins=${collectedCoins.red}&blueCoins=${collectedCoins.blue}&yellowCoins=${collectedCoins.yellow}`;
         window.location.href = resultURL;
-    }else{
+    } else {
         //ゲームオーバーの場合、プレイ画面にリロード
         window.location.reload();
     }
+}
+
+function showMessage(msg) {
+    messageElement.innerText = msg;
 }
 
 function showMessage(message) {
