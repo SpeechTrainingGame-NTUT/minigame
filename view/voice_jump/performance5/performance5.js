@@ -27,39 +27,20 @@ let gameRunning = false;
 
 // 各コインの色とポイントの定義
 let coinData = [
-    { x: 260, y: platforms[1].y - 8, radius: 8, color: 'red', points: 10 },
+    { x: 260, y: platforms[1].y - 8, radius: 8, color: 'red', points: 30 },
     { x: 708, y: platforms[4].y - 8, radius: 8, color: 'red', points: 30 },
 
-    { x: 150, y: 70, radius: 8, color: 'blue', points: 10 },
-    { x: 360, y: 140, radius: 8, color: 'blue', points: 30 },
+    { x: 150, y: 70, radius: 8, color: 'blue', points: 20 },
+    { x: 360, y: 140, radius: 8, color: 'blue', points: 20 },
 
 
     { x: 92, y: 140, radius: 8, color: 'yellow', points: 10 },
     { x: 490, y: 110, radius: 8, color: 'yellow', points: 10 },
     { x: 430, y: platforms[2].y - 8, radius: 8, color: 'yellow', points: 10 },
-    { x: 590, y: platforms[3].y - 8, radius: 8, color: 'yellow', points: 20 },
+    { x: 590, y: platforms[3].y - 8, radius: 8, color: 'yellow', points: 10 },
     { x: 650, y: 190, radius: 8, color: 'yellow', points: 10 },
     { x: 745, y: 200, radius: 8, color: 'yellow', points: 10 }
 ];
-
-/*
-// コインの位置とサイズ
-let coins = [
-    // 空中のコイン
-    { x: 92, y: 140, radius: 8 }, //o
-    { x: 150, y: 70, radius: 8 },
-    { x: 360, y: 140, radius: 8 }, //o
-    { x: 490, y: 110, radius: 8 }, //o
-    { x: 640, y: 190, radius: 8 }, //o
-
-    // 足場のコイン
-    { x: 40, y: platforms[0].y - 8, radius: 8 }, //o
-    { x: 260, y: platforms[1].y - 8, radius: 8 }, //o
-    { x: 430, y: platforms[2].y - 8, radius: 8 }, //o 
-    { x: 590, y: platforms[3].y - 8, radius: 8 }, //o
-    { x: 710, y: platforms[4].y - 8, radius: 8 }
-];
-*/
 
 let startTime;
 let volumeLog = [];

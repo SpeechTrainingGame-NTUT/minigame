@@ -27,16 +27,16 @@ let gameRunning = false;
 
 // 各コインの色とポイントの定義
 let coinData = [
-    { x: 228, y: platforms[1].y - 8, radius: 8, color: 'red', points: 10 },
-    { x: 378, y: platforms[4].y - 8, radius: 8, color: 'red', points: 10 },
+    { x: 228, y: platforms[1].y - 8, radius: 8, color: 'red', points: 30 },
+    { x: 378, y: platforms[4].y - 8, radius: 8, color: 'red', points: 30 },
 
-    { x: 330, y: 40, radius: 8, color: 'blue', points: 30 },
-    { x: 520, y: 50, radius: 8, color: 'blue', points: 10 },
+    { x: 330, y: 40, radius: 8, color: 'blue', points: 20 },
+    { x: 520, y: 50, radius: 8, color: 'blue', points: 20 },
 
     { x: 70, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
     { x: 140, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
     { x: 600, y: platforms[1].y - 8, radius: 8, color: 'yellow', points: 10 },
-    { x: 650, y: 80, radius: 8, color: 'yellow', points: 20 },
+    { x: 650, y: 80, radius: 8, color: 'yellow', points: 10 },
     { x: 740, y: platforms[4].y - 8, radius: 8, color: 'yellow', points: 10 }
 ];
 
@@ -252,7 +252,7 @@ function endGame(isCleared) {
         const elapsedTime = ((window.performance.now() - startTime) / 1000).toFixed(2);
 
         //結果画面に取得したコインの数と総コイン数を送信
-        const resultURL = `performance1_result.html?elapsedTime=${elapsedTime}&coinScore=${coinScore}&redCoins=${collectedCoins.red}&blueCoins=${collectedCoins.blue}&yellowCoins=${collectedCoins.yellow}`;
+        const resultURL = `performance4_result.html?elapsedTime=${elapsedTime}&coinScore=${coinScore}&redCoins=${collectedCoins.red}&blueCoins=${collectedCoins.blue}&yellowCoins=${collectedCoins.yellow}`;
         window.location.href = resultURL;
     } else {
         //ゲームオーバーの場合、プレイ画面にリロード

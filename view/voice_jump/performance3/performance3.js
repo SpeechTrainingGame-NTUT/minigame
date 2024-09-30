@@ -24,17 +24,17 @@ let gameRunning = false;
 
 // 各コインの色とポイントの定義
 let coinData = [
-    { x: 280, y: platforms[0].y - 8, radius: 8, color: 'red', points: 10 },
-    { x: 420, y: platforms[1].y - 8, radius: 8, color: 'red', points: 10 },
+    { x: 280, y: platforms[0].y - 8, radius: 8, color: 'red', points: 30 },
+    { x: 420, y: platforms[1].y - 8, radius: 8, color: 'red', points: 30 },
 
-    { x: 230, y: 60, radius: 8, color: 'blue', points: 30 },
-    { x: 330, y: 40, radius: 8, color: 'blue', points: 30 },
+    { x: 230, y: 60, radius: 8, color: 'blue', points: 20 },
+    { x: 330, y: 40, radius: 8, color: 'blue', points: 20 },
 
     { x: 150, y: 150, radius: 8, color: 'yellow', points: 10 },
     { x: 70, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
-    { x: 500, y: 30, radius: 8, color: 'yellow', points: 20 },
+    { x: 500, y: 30, radius: 8, color: 'yellow', points: 10 },
     { x: 600, y: platforms[1].y - 8, radius: 8, color: 'yellow', points: 10 },
-    { x: 650, y: 80, radius: 8, color: 'yellow', points: 20 },
+    { x: 650, y: 80, radius: 8, color: 'yellow', points: 10 },
     { x: 700, y: platforms[1].y - 8, radius: 8, color: 'yellow', points: 10 }
 ];
 
@@ -126,17 +126,20 @@ let collectedCoins = { red: 0, blue: 0, yellow: 0 }; // 各色のコインのカ
 
 // コインとの衝突を確認
 function checkCoinCollision() {
-    coins = coins.filter(coin => {
+    coinData = coinData.filter(coin => {
         const distX = player.x + player.width / 2 - coin.x;
         const distY = player.y + player.height / 2 - coin.y;
         const distance = Math.sqrt(distX * distX + distY * distY);
 
         if (distance < coin.radius + player.width / 2) {
-            console.log("コインを取得しました！");
-            collectedCoins++; // コイン取得数を増加
-            return false; // コインを削除
+            coinScore += coin.points; // コインのポイントを加算
+            // 獲得したコインの色に応じてカウントを増やす
+            if (coin.color === 'red') collectedCoins.red++;
+            if (coin.color === 'blue') collectedCoins.blue++;
+            if (coin.color === 'yellow') collectedCoins.yellow++;
+            return false; // 取得したコインを配列から削除
         }
-        return true; // コインを保持
+        return true;
     });
 }
 

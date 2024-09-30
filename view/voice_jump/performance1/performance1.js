@@ -23,8 +23,10 @@ let gameRunning = false;
 let coinData = [
     { x: 230, y: 60, radius: 8, color: 'red', points: 30 },
     { x: 330, y: 40, radius: 8, color: 'red', points: 30 },
+
     { x: 500, y: 30, radius: 8, color: 'blue', points: 20 },
     { x: 650, y: 80, radius: 8, color: 'blue', points: 20 },
+    
     { x: 150, y: 150, radius: 8, color: 'yellow', points: 10 },
     { x: 70, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
     { x: 280, y: platforms[0].y - 8, radius: 8, color: 'yellow', points: 10 },
