@@ -32,25 +32,37 @@
       width: 4px; /* 太い線の幅 */
     }
     .btn-start { /*「開始」ボタン*/
-      background-color: #28a745;
-      border-color: #28a745;
-      color: white;
+      background-color: #28a745 !important;
+      border-color: #28a745 !important;
+      color: white !important;
     }
     .btn-start:hover { /*「開始」ボタンを押した時の動作*/
-      background-color: #218838;
-      border-color: #1e7e34;
-      color: white;
+      background-color: #218838 !important;
+      border-color: #1e7e34 !important;
+      color: white !important;
     }
+    .btn-start:active {
+      background-color: #218838 !important;
+      border-color: #1e7e34 !important;
+      color: white !important;
+    }
+    .btn-start:focus {
+      background-color: #218838 !important;
+      border-color: #1e7e34 !important;
+      color: white !important;
+      outline: none !important; /* ボタンのフォーカスリングを消す */
+    }
+
     .btn-custom-primary { /*「ホーム画面へ」ボタン*/
-      background-color: #007bff;
-      border-color: #007bff;
-      color: white;
-      text-decoration: none; /* 下線を消す */
+      background-color: #007bff !important;
+      border-color: #007bff !important;;
+      color: white !important;;
+      text-decoration: none !important;; /* 下線を消す */
     }
     .btn-custom-primary:hover { /*「ホーム画面へ」ボタンを推した時の動作*/
-      background-color: #0069d9;
-      border-color: #0062cc;
-      color: white;
+      background-color: #0069d9 !important;;
+      border-color: #0062cc !important;;
+      color: white !important;;
     }
     .no-border {
       border: none; /* 枠線を消す */
@@ -93,7 +105,7 @@
 
     <p id="elapsedTime">経過時間: 0秒</p>
     
-    <button onclick="beginDetect()" class="btn btn-start">開始</button>
+    <button onclick="beginDetect()" class="btn btn-start"><i class="fas fa-play"></i> 開始</button>
 
     <p id="output"></p>
     <button onclick="goBack()" class="no-border">

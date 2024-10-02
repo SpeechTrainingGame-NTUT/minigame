@@ -206,10 +206,6 @@ function beginDetect() {
                             console.log('Current PEAK volume:', volume);
                             volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
-                            if (typeof volume === 'number' && !isNaN(volume)) {
-                                volumeLog.push(Number(volume).toFixed(3));
-                            }
-
                             // キャラクターの動きを定義する部分
                             if (volume > 0.1 && player.onGround) {
                                 const jumpPowerBasedOnVolume = Math.min(player.jumpPower * volume * 10, 14);
@@ -255,17 +251,4 @@ function endGame(isCleared) {
         //ゲームオーバーの場合、プレイ画面にリロード
         window.location.reload();
     }
-}
-
-function showMessage(msg) {
-    messageElement.innerText = msg;
-}
-
-function showMessage(message) {
-    messageElement.textContent = message;
-    messageElement.style.display = 'block';
-}
-
-function hideMessage() {
-    messageElement.style.display = 'none';
 }

@@ -89,7 +89,6 @@ function updatePlayer() {
     if (player.y + player.height > canvas.height) {
         player.y = canvas.height - player.height;
         player.dy = 0;
-        showMessage("ゲームオーバー！");
         endGame(false);
     }
 
@@ -104,13 +103,11 @@ function updatePlayer() {
         player.y + player.height > goal.y &&
         player.y < goal.y + goal.height
     ) {
-        showMessage("ゴールしました！");
         endGame(true);
     }
 
     //プレイヤーがゴールを通り過ぎたらゲームオーバー
     if (player.x > goal.x + goal.width) {
-        showMessage("ゲームオーバー！");
         endGame(false); //ゲームオーバーの場合、結果画面にいかない
     }
 
@@ -201,10 +198,6 @@ function beginDetect() {
                             console.log('Current PEAK volume:', volume);
                             volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
-                            if (typeof volume === 'number' && !isNaN(volume)) {
-                                volumeLog.push(Number(volume).toFixed(3));
-                            }
-
                             // キャラクターの動きを定義する部分
                             if (volume > 0.1 && player.onGround) {
                                 const jumpPowerBasedOnVolume = Math.min(player.jumpPower * volume * 10, 14);
@@ -212,6 +205,7 @@ function beginDetect() {
                                 player.onGround = false;
                                 player.jumpStartTime = performance.now();
                                 const jumpDuration = (performance.now() - player.jumpStartTime) / 1000;
+                                console.log("jumpDuration: ", jumpDuration);
                                 player.x += player.speed * jumpDuration;
                             } else if (volume < 0.1 && volume >= 0.01) {
                                 player.x += player.speed;
@@ -247,17 +241,4 @@ function endGame(isCleared) {
     } else {
         window.location.reload();
     }
-}
-
-function showMessage(msg) {
-    messageElement.innerText = msg;
-}
-
-function showMessage(message) {
-    messageElement.textContent = message;
-    messageElement.style.display = 'block';
-}
-
-function hideMessage() {
-    messageElement.style.display = 'none';
 }

@@ -16,21 +16,58 @@
         body {
             font-family: 'Noto Sans JP', sans-serif;
         }
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        h4 {
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        .list-group-item {
+            font-size: 1.1rem;
+        }
+        .btn-primary {
+            font-size: 1.1rem;
+            padding: 0.75rem 1.5rem;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-3 mt-md-5">
         <div class="row justify-content-center">
             <div class="col-12 col-md-8">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <!--<h2 class="card-title mb-4">説明</h2>-->
+                        <h2 class="card-title text-center mb-4">ラン&ジャンプ 説明</h2>
+                        
+                        <h4 class="text-primary"><i class="fas fa-gamepad me-2"></i>プレイ中</h4>
                         <p class="card-text">
-                            小さい声(ボリュームが0.01を超え、0.1以下の時)で進み、<br>
-                            大きな声(ボリュームが0.1を超えた時)でジャンプします。<br>
-                            無音の時間が短ければ短いほど、スコアが上がります。<br>
-                            注意点として、音量グラフで、最初の段階では、音量がゼロかほぼゼロになってしまいます。
+                            小さい声(音量が0.01を超え、0.1以下の時)で進み、<br>
+                            大きな声(音量が0.1を超えた時)でジャンプします。<br>
+                            声の大きさが大きいほど、ジャンプの高さは高くなります。<br>
+                            ジャンプした場合で声を出す時間が長いほど、遠くまで移動することができます。
                         </p>
+                        
+                        <h4 class="text-primary"><i class="fas fa-clipboard-check me-2"></i>結果画面の見方</h4>
+                        <p class="card-text">
+                            <strong>所要時間のランク分け</strong><br>
+                            S...20秒未満<br>
+                            A...20秒以上25秒未満<br>
+                            B...25秒以上30秒未満<br>
+                            C...30秒以上35秒未満<br>
+                            D...35秒以上<br>
+                            <br>
+                            <strong>コインスコアのランク分け</strong><br>
+                            S...130ポイント以上<br>
+                            A...100ポイント以上130ポイント未満<br>
+                            B...80ポイント以上100ポイント未満<br>
+                            C...60ポイント以上80ポイント未満<br>
+                            D...60ポイント未満<br>
+                            コインの色によって1枚あたりのポイントは異なる。<br>
+                            赤...30ポイント　青...20ポイント　黄色...10ポイント
+                        </p>
+                        
                         <div class="list-group mt-4">
                             <a href='performance1/performance1.html' class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 レベル1
@@ -55,7 +92,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-3">
+                
+                <div class="text-center mt-4">
                     <a href="../../index.html" class="btn btn-primary">
                         <i class="fas fa-home me-2"></i>ホーム画面へ
                     </a>
