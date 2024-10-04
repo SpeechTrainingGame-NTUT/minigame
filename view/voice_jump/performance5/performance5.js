@@ -98,7 +98,6 @@ function updatePlayer() {
     if (player.y + player.height > canvas.height) {
         player.y = canvas.height - player.height;
         player.dy = 0;
-        showMessage("ゲームオーバー！");
         endGame(false); //ゲームオーバーの場合、結果画面にいかない
     }
 
@@ -114,13 +113,11 @@ function updatePlayer() {
         player.y + player.height > goal.y &&
         player.y < goal.y + goal.height
     ) {
-        showMessage("ゴールしました！");
         endGame(true); //クリアした場合、結果画面にいく
     }
 
     //プレイヤーがゴールを通り過ぎたらゲームオーバー
     if (player.x > goal.x + goal.width) {
-        showMessage("ゲームオーバー！");
         endGame(false); //ゲームオーバーの場合、結果画面にいかない
     }
 
