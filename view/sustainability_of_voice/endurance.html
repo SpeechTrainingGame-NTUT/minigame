@@ -8,12 +8,12 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     .meter-container {
-      width: 100%; /* 幅を100%に設定 */
+      width: 100%;
       max-width: 1500px;
       margin: 20px auto;
       border: 1px solid black;
       position: relative;
-      height: 20px; /* 高さを増加 */
+      height: 20px;
     }
     #volume {
       position: absolute;
@@ -24,52 +24,45 @@
     }
     .threshold-line {
       position: absolute;
-      height: 20px; /* ボリュームメーターの高さに合わせる */
-      width: 2px; /* 線の幅 */
-      background-color: red; /* 線の色 */
+      height: 20px;
+      width: 2px;
+      background-color: red;
     }
     .threshold-line.thick {
-      width: 4px; /* 太い線の幅 */
+      width: 4px;
     }
-    .btn-start { /*「開始」ボタン*/
+    .btn-start {
       background-color: #28a745 !important;
       border-color: #28a745 !important;
       color: white !important;
     }
-    .btn-start:hover { /*「開始」ボタンを押した時の動作*/
+    .btn-start:hover {
       background-color: #218838 !important;
       border-color: #1e7e34 !important;
       color: white !important;
     }
-    .btn-start:active {
+    .btn-start:active, .btn-start:focus {
       background-color: #218838 !important;
       border-color: #1e7e34 !important;
       color: white !important;
+      outline: none !important;
     }
-    .btn-start:focus {
-      background-color: #218838 !important;
-      border-color: #1e7e34 !important;
-      color: white !important;
-      outline: none !important; /* ボタンのフォーカスリングを消す */
-    }
-
-    .btn-custom-primary { /*「ホーム画面へ」ボタン*/
+    .btn-custom-primary {
       background-color: #007bff !important;
-      border-color: #007bff !important;;
-      color: white !important;;
-      text-decoration: none !important;; /* 下線を消す */
+      border-color: #007bff !important;
+      color: white !important;
     }
-    .btn-custom-primary:hover { /*「ホーム画面へ」ボタンを推した時の動作*/
-      background-color: #0069d9 !important;;
-      border-color: #0062cc !important;;
-      color: white !important;;
+    .btn-custom-primary:hover {
+      background-color: #0069d9 !important;
+      border-color: #0062cc !important;
+      color: white !important;
     }
     .no-border {
-      border: none; /* 枠線を消す */
-      padding: 0; /* パディングをリセット */
+      border: none;
+      padding: 0;
     }
     .mt-4 {
-      margin-top: 1.5rem; /* 上部のマージンを調整 */
+      margin-top: 1.5rem;
     }
   </style>
 </head>
@@ -105,6 +98,9 @@
 
     <p id="elapsedTime">経過時間: 0秒</p>
     
+    <!-- 音量表示用の要素 -->
+    <p id="volumeDisplay">音量: 0</p>
+    
     <button onclick="beginDetect()" class="btn btn-start"><i class="fas fa-play"></i> 開始</button>
 
     <p id="output"></p>
@@ -121,7 +117,7 @@
     var meter;
     var elapsedTime = 0;
     var timer;
-    var threshold = 0; // 初期しきい値
+    var threshold = 0;
 
     function setThreshold() {
       threshold = parseFloat(document.getElementById('threshold').value);
@@ -137,15 +133,12 @@
           mediaStreamSource.connect(meter);
           setInterval(() => {
             document.getElementById('volume').style.width = (meter.volume * 100) + '%';
-            console.log('Current Volume:', meter.volume); // ボリュームの値をコンソールに表示
-            console.log('Threshold:', threshold); // しきい値をコンソールに表示
-            console.log('Volume > Threshold:', meter.volume > threshold); // 比較結果を表示
+            document.getElementById('volumeDisplay').innerText = '音量: ' + (meter.volume * 100).toFixed(2); // 音量の表示
             if (meter.volume > threshold && !timer) {
-              //console.log(meter.volume);
-              startTimer(); // しきい値を超えたらカウントを開始
+              startTimer();
             } else if (meter.volume < threshold) {
-              resetTimer(); // しきい値未満になったら経過時間をリセット
-              stopTimer(); // 経過時間のカウントを停止
+              resetTimer();
+              stopTimer();
             }
           }, 100);
         });
@@ -161,12 +154,12 @@
 
     function stopTimer() {
       clearInterval(timer);
-      timer = null; // タイマーをリセット
+      timer = null;
     }
 
     function resetTimer() {
-      stopTimer(); // タイマーを停止
-      elapsedTime = 0; // 経過時間を0にリセット
+      stopTimer();
+      elapsedTime = 0;
       document.getElementById('elapsedTime').innerText = '経過時間: 0秒';
     }
 

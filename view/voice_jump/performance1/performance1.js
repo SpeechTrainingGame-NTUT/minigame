@@ -195,7 +195,10 @@ function beginDetect() {
                     createAudioMeter(audioContext).then(meterNode => {  // scriptNode -> meterNode に変更
                         meterNode.port.onmessage = (event) => {
                             const volume = event.data.volume;
+                            const volumeDisplayElement = document.getElementById('volume-display');  // 音量表示要素を取得
                             console.log('Current PEAK volume:', volume);
+                            // 音量表示を更新
+                            volumeDisplayElement.textContent = `音量: ${(volume * 100).toFixed(2)}`;
                             volumeBar.style.width = `${(volume * 100).toFixed(1)}%`;
 
                             // キャラクターの動きを定義する部分

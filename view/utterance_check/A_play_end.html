@@ -14,34 +14,57 @@
     body {
       font-family: 'Noto Sans JP', sans-serif !important;
     }
-    .btn-primary{
-      background-color:#007bff;
-      border-color: #007bff;
-      color: white;
+    .container {
+      max-width: 800px; /* 幅を狭くするための設定 */
     }
-    .btn-primary:hover{
-      background-color:white;
-      border-color:#007bff;
-      color: black;
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        transition: background-color 0.3s;
+    }
+    .btn-primary:hover, .btn-primary:active {
+        background-color: #0056b3 !important; /* 濃い青 */
+        border-color: #0056b3 !important;
+        color: white !important;
+    }
+    .btn-try {
+        background-color: #28a745; /* 緑色の背景 */
+        color: white;
+        transition: background-color 0.3s;
+    }
+    .btn-try:hover, .btn-try:active {
+        background-color: #218838 !important; /* 濃い緑 */
+        color: white !important;
+    }
+    .button-group {
+      display: flex;
+      justify-content: center; /* 中央揃え */
+      gap: 10px; /* ボタン間のスペース */
     }
   </style>
 </head>
 
 <body class="container py-5">
-  <h2 class="mb-4">お疲れ様でした</h2>
-  <div class="card mb-4">
+  <h2 class="mb-4 text-center">発話チェックA 結果</h2>
+  <div class="card mb-4 shadow">
     <div class="card-body">
       <p>正解数：<span id="correctCount" class="fw-bold"></span></p>
       <p>ミス数：<span id="mistakeCount" class="fw-bold"></span></p>
       <p>正解した単語：<span id="correctWords" class="fst-italic"></span></p>
       <p>ミスした単語：<span id="mistakeWords" class="fst-italic"></span></p>
       <p class="text-danger">目標の正解数は<span id="targetCorrect" class="fw-bold"></span>で、結果の正解数は<span id="correctCountNumber" class="fw-bold"></span>でした。<br><span id="targetMessage" class="fw-bold"></span></p>
+      <p>もっとハッキリ言った方がいい単語：<span id="unclearWordsDisplay" class="fst-italic"></span> <!-- 表示用のpタグに変更 --></p>
     </div>
   </div>
-  <a href='../../index.html' class="btn btn-primary"><i class="fas fa-home me-2"></i>トップ画面へ</a>
+  
+  <div class="button-group">
+    <a href='../utterance_check/A.html' class="btn btn-try">再挑戦</a>
+    <a href='../../index.html' class="btn btn-primary"><!--<i class="fas fa-home me-2"></i>-->トップ画面へ</a>
+  </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
       
       const correctCount = urlParams.get('correct');
@@ -49,6 +72,7 @@
       const correctWords = urlParams.get('correctWords');
       const mistakeWords = urlParams.get('mistakeWords');
       const targetCorrect = urlParams.get('targetCorrect');
+      const unclearWords = urlParams.get('unclearWords') ? urlParams.get('unclearWords').split(',') : []; // 修正: nullチェックを追加
 
       document.getElementById('correctCount').textContent = correctCount;
       document.getElementById('mistakeCount').textContent = mistakeCount;
@@ -62,14 +86,16 @@
         targetMessage.textContent = '目標達成おめでとうございます！';
         targetMessage.classList.add('text-success');
       } else {
-        targetMessage.textContent = '目標達成まであと一歩でした。次は頑張りましょう！';
+        targetMessage.textContent = '次こそは目標達成ができるように頑張りましょう！';
         targetMessage.classList.add('text-warning');
       }
+
+      // unclearWordsを読点で結合して表示する
+      const unclearWordsDisplay = document.getElementById('unclearWordsDisplay');
+      unclearWordsDisplay.textContent = unclearWords.length > 0 ? unclearWords.join('、') : 'なし';
     });
   </script>
 
-  <!-- ... 既存のscriptタグ ... -->
-  <script src="script.js"></script>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
