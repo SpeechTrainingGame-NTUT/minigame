@@ -1,4 +1,4 @@
-const axios = require('axios');
+//import moduleName from 'axios';
 
 // APIエンドポイントとキー（gooラボのAPIキーが必要）
 const API_URL = 'https://labs.goo.ne.jp/api/hiragana';
