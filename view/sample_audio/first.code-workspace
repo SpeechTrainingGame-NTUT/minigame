@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../xampp/htdocs/first"
+		},
+		{
+			"name": "minigame",
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "minigame"
+	}
+}

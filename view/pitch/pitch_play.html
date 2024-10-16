@@ -68,10 +68,32 @@
 
             // 周波数を計算 (Hz)
             let frequency = maxIndex * audioCtx.sampleRate / analyser.fftSize;
-            
             updateDebug(`Detected frequency: ${frequency.toFixed(2)} Hz`);
 
+            // 基本周波数の推定
+            let fundamentalFrequency = estimateFundamentalFrequency(dataArray);
+            updateDebug(`Estimated fundamental frequency: ${fundamentalFrequency.toFixed(2)} Hz`);
+
             requestAnimationFrame(updatePitch);
+        }
+
+        function estimateFundamentalFrequency(data) {
+            let maxIndex = 0;
+            let maxValue = 0;
+            const threshold = 0.1; // 閾値を設定（調整可能）
+
+            // ピークを見つける
+            for (let i = 1; i < data.length - 1; i++) {
+                if (data[i] > threshold * 255 && data[i] > data[i - 1] && data[i] > data[i + 1]) {
+                    if (data[i] > maxValue) {
+                        maxValue = data[i];
+                        maxIndex = i;
+                    }
+                }
+            }
+
+            // 基本周波数を計算 (Hz)
+            return maxIndex * audioCtx.sampleRate / analyser.fftSize;
         }
 
         function visualize() {
@@ -105,5 +127,3 @@
     </script>
 </body>
 </html>
-
-<!--声の高さの計算、ホントに合ってる?-->
