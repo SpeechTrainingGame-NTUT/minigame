@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             // ひらがな化APIを使用して変換
             const hiraganaResult = await convertToHiragana(lastResult);
+            console.log('Hiragana result:', hiraganaResult); // レスポンス全体をログに表示
             const normalizedLastResult = hiraganaResult.converted; // APIの結果を使用
             const normalizedCurrentWord = currentWord; // 現在の単語もそのまま保持
 
@@ -136,6 +137,5 @@ function getRandomWord() {
 function endGame() {
     gameIsOver = true;
     sr.stop();
-
     window.location.href = `A_play_end.html?correct=${correctAnswers}&mistakes=${mistakes}&correctWords=${correctWordsArray.join("，")}&mistakeWords=${mistakeWordsArray.join("，")}&targetCorrect=${targetCorrect}&unclearWords=${encodeURIComponent(unclearWordsArray.join(','))}`;
 }
