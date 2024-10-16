@@ -1,4 +1,4 @@
-//import moduleName from 'axios';
+import axois from 'axios';
 
 // APIエンドポイントとキー（gooラボのAPIキーが必要）
 const API_URL = 'https://labs.goo.ne.jp/api/hiragana';
@@ -131,4 +131,11 @@ function getRandomWord() {
         "偽り", "祭り", "日常", "運命", "形", "希望", "マサチューセッツ州", "瞬間", "逆境"
     ];
     return words[Math.floor(Math.random() * words.length)];
+}
+
+function endGame() {
+    gameIsOver = true;
+    sr.stop();
+
+    window.location.href = `A_play_end.html?correct=${correctAnswers}&mistakes=${mistakes}&correctWords=${correctWordsArray.join("，")}&mistakeWords=${mistakeWordsArray.join("，")}&targetCorrect=${targetCorrect}&unclearWords=${encodeURIComponent(unclearWordsArray.join(','))}`;
 }
