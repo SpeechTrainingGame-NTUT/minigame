@@ -71,7 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
             timerDisplay.textContent = "Time: " + timeLimit;
             setTimeout(timer, 1000);
         } else {
-            endGame();
+            gameIsOver = true;
+            sr.stop();
+            window.location.href = `A_play_end.html?correct=${correctAnswers}&mistakes=${mistakes}&correctWords=${correctWordsArray.join("，")}&mistakeWords=${mistakeWordsArray.join("，")}&targetCorrect=${targetCorrect}&unclearWords=${encodeURIComponent(unclearWordsArray.join(','))}`;
         }
     }
 
@@ -124,12 +126,21 @@ async function convertToHiragana(text) {
 }
 
 function getRandomWord() {
+    /*
     const words = [
         "かき氷", "金魚", "晴れ", "音", "風", "耳", "夏", "うちわ", "茶碗", "季節",
         "着物", "緑", "地図", "冒険", "文化", "夕焼け", "平和", "自然", "魔法", "理想",
         "机", "電話", "家族", "星空", "桜", "山", "本", "空", "夢", "笑顔",
         "思い出", "月", "飛行機", "映画", "世界", "感情", "レストラン", "旅行", "地平線", "悲しみ",
         "偽り", "祭り", "日常", "運命", "形", "希望", "マサチューセッツ州", "瞬間", "逆境"
+    ];
+    */
+    const words = [
+        "かきごおり", "きんぎょ", "はれ", "おと", "かぜ", "みみ", "なつ", "うちわ", "ちゃわん", "きせつ",
+        "きもの", "みどり", "ちず", "ぼうけん", "ぶんか", "ゆうやけ", "へいわ", "しぜん", "まほう", "りそう",
+        "つくえ", "でんわ", "かぞく", "ほしぞら", "さくら", "やま", "ほん", "そら", "ゆめ", "えがお",
+        "おもいで", "つき", "ひこうき", "えいが", "せかい", "かんじょう", "れすとらん", "りょこう", "ちへいせん", "かなしみ",
+        "いつわり", "まつり", "にちじょう", "うんめい", "かたち", "きぼう", "まさちゅーせっつしゅう", "しゅんかん", "ぎゃっきょう"
     ];
     return words[Math.floor(Math.random() * words.length)];
 }
