@@ -1,0 +1,9 @@
+{
+    "packages": [],
+    "files":{
+       "./myaudio.py":""
+    },
+    "js_modules.main": {
+      "https://unpkg.com/mqtt/dist/mqtt.min.js" : "mqtt"
+    }
+   }

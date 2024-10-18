@@ -1,129 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Pitch Detection</title>
-    <style>
-        * { font-family: 'Noto Sans JP', sans-serif !important; }
-        #debug {
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin: 20px;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyodide Audio Processing</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.0/full/pyodide.js"></script>
 </head>
 <body>
-    <div id="debug">Click "Start Detection" to begin</div>
-    <button id="detectButton">Start Detection</button>
-    <canvas id="visualizer" width="400" height="200"></canvas>
-    <script>
-        let audioCtx, analyser, microphone, bufferLength, dataArray;
-        let isDetecting = false;
-        let canvas, canvasCtx;
+    <h1>Audio Power and Fundamental Frequency Monitoring</h1>
+    <button id="start-button">Start Monitoring</button>
+    <p id="output"></p>
 
-        document.getElementById('detectButton').addEventListener('click', startDetection);
+    <script type="text/javascript">
+        async function main() {
+            // Load Pyodide and necessary packages
+            const pyodide = await loadPyodide();
+            await pyodide.loadPackage(['numpy']);
 
-        function startDetection() {
-            if (isDetecting) return;
+            // Define the Python code
+            const pythonCode = `
+import asyncio
+import numpy as np
+from js import navigator, console, AudioContext, document
+from pyodide.ffi import create_proxy
 
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 2048;
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
+async def get_audio_stream():
+    try:
+        # Request access to the microphone
+        stream = await navigator.mediaDevices.getUserMedia({'audio': True})
+        return stream
+    except Exception as e:
+        console.log(f"Error accessing microphone: {e}")
+        return None
 
-            canvas = document.getElementById('visualizer');
-            canvasCtx = canvas.getContext('2d');
+async def process_audio(event):
+    # Placeholder for VOSK model and KaldiRecognizer
+    # model = Model("model")  # Ensure the VOSK model is available in the environment
+    # recognizer = KaldiRecognizer(model, 16000)  # Assuming a sample rate of 16000 Hz
 
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                .then(stream => {
-                    microphone = audioCtx.createMediaStreamSource(stream);
-                    microphone.connect(analyser);
-                    isDetecting = true;
-                    updatePitch();
-                    visualize();
-                })
-                .catch(err => {
-                    console.error('Error accessing microphone:', err);
-                    updateDebug(`Error accessing microphone: ${err.message}`);
-                });
+    stream = await get_audio_stream()
+    if not stream:
+        return
+
+    audio_context = AudioContext.new()
+    source = audio_context.createMediaStreamSource(stream)
+    processor = audio_context.createScriptProcessor(4096, 1, 1)
+
+    def on_audio_process(event):
+        input_buffer = event.inputBuffer.getChannelData(0)
+        audio_data = np.frombuffer(input_buffer, dtype=np.float32)
+
+        # Calculate power
+        rms = np.sqrt(np.mean(audio_data**2))
+        power = 20 * np.log10(rms) if rms > 0.0 else -np.inf
+
+        # Placeholder for fundamental frequency calculation using YIN
+        # fo, _ = dio(audio_data, 16000)
+        # nonzero_ind = np.nonzero(fo.astype(int))[0]
+        # fo = fo[nonzero_ind].mean() if len(fo) > 0 else 0.0
+
+        # Placeholder for speech recognition
+        # if recognizer.AcceptWaveform(audio_data.tobytes()):
+        #     result = recognizer.Result()
+        #     console.log(result)
+
+        # Update UI
+        document.getElementById("output").innerText = f"音声パワー {power:.1f}[dB]"
+
+    processor.onaudioprocess = create_proxy(on_audio_process)
+    source.connect(processor)
+    processor.connect(audio_context.destination)
+
+document.getElementById("start-button").addEventListener("click", create_proxy(process_audio))
+`;
+
+            // Run the Python code
+            await pyodide.runPythonAsync(pythonCode);
         }
 
-        function updatePitch() {
-            if (!isDetecting) return;
-
-            analyser.getByteFrequencyData(dataArray);
-            
-            let maxIndex = 0;
-            let maxValue = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                if (dataArray[i] > maxValue) {
-                    maxValue = dataArray[i];
-                    maxIndex = i;
-                }
-            }
-
-            // 周波数を計算 (Hz)
-            let frequency = maxIndex * audioCtx.sampleRate / analyser.fftSize;
-            updateDebug(`Detected frequency: ${frequency.toFixed(2)} Hz`);
-
-            // 基本周波数の推定
-            let fundamentalFrequency = estimateFundamentalFrequency(dataArray);
-            updateDebug(`Estimated fundamental frequency: ${fundamentalFrequency.toFixed(2)} Hz`);
-
-            requestAnimationFrame(updatePitch);
-        }
-
-        function estimateFundamentalFrequency(data) {
-            let maxIndex = 0;
-            let maxValue = 0;
-            const threshold = 0.1; // 閾値を設定（調整可能）
-
-            // ピークを見つける
-            for (let i = 1; i < data.length - 1; i++) {
-                if (data[i] > threshold * 255 && data[i] > data[i - 1] && data[i] > data[i + 1]) {
-                    if (data[i] > maxValue) {
-                        maxValue = data[i];
-                        maxIndex = i;
-                    }
-                }
-            }
-
-            // 基本周波数を計算 (Hz)
-            return maxIndex * audioCtx.sampleRate / analyser.fftSize;
-        }
-
-        function visualize() {
-            if (!isDetecting) return;
-
-            analyser.getByteFrequencyData(dataArray);
-
-            canvasCtx.fillStyle = 'rgb(200, 200, 200)';
-            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const barWidth = (canvas.width / bufferLength) * 2.5;
-            let barHeight;
-            let x = 0;
-
-            for(let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2;
-
-                canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
-                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-
-                x += barWidth + 1;
-            }
-
-            requestAnimationFrame(visualize);
-        }
-
-        function updateDebug(message) {
-            const debugDiv = document.getElementById('debug');
-            debugDiv.innerHTML = `<p>${message}</p>`;
-        }
+        main();
     </script>
 </body>
 </html>
