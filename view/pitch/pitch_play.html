@@ -1,84 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pyodide Audio Processing</title>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.0/full/pyodide.js"></script>
+    <title>音声入力デモ</title>
 </head>
 <body>
-    <h1>Audio Power and Fundamental Frequency Monitoring</h1>
-    <button id="start-button">Start Monitoring</button>
-    <p id="output"></p>
+    <h1>音声入力デモ</h1>
+    <button id="start">録音開始</button>
+    <button id="stop">録音停止</button>
+    <p id="status">ステータス: 停止中</p>
+    <p id="output">音声パワー: - [dB], 基本周波数: - [Hz]</p>
 
-    <script type="text/javascript">
-        async function main() {
-            // Load Pyodide and necessary packages
-            const pyodide = await loadPyodide();
-            await pyodide.loadPackage(['numpy']);
+    <script>
+        const startButton = document.getElementById('start');
+        const stopButton = document.getElementById('stop');
+        const statusText = document.getElementById('status');
+        const outputText = document.getElementById('output');
 
-            // Define the Python code
-            const pythonCode = `
-import asyncio
-import numpy as np
-from js import navigator, console, AudioContext, document
-from pyodide.ffi import create_proxy
+        let mediaRecorder;
+        let socket;
 
-async def get_audio_stream():
-    try:
-        # Request access to the microphone
-        stream = await navigator.mediaDevices.getUserMedia({'audio': True})
-        return stream
-    except Exception as e:
-        console.log(f"Error accessing microphone: {e}")
-        return None
+        startButton.onclick = async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            socket = new WebSocket('ws://localhost:8000');
 
-async def process_audio(event):
-    # Placeholder for VOSK model and KaldiRecognizer
-    # model = Model("model")  # Ensure the VOSK model is available in the environment
-    # recognizer = KaldiRecognizer(model, 16000)  # Assuming a sample rate of 16000 Hz
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
+                    socket.send(event.data);
+                }
+            };
 
-    stream = await get_audio_stream()
-    if not stream:
-        return
+            mediaRecorder.start(100); // 100msごとにデータを送信
+            statusText.textContent = 'ステータス: 録音中';
+        };
 
-    audio_context = AudioContext.new()
-    source = audio_context.createMediaStreamSource(stream)
-    processor = audio_context.createScriptProcessor(4096, 1, 1)
+        stopButton.onclick = () => {
+            mediaRecorder.stop();
+            socket.close();
+            statusText.textContent = 'ステータス: 停止中';
+        };
 
-    def on_audio_process(event):
-        input_buffer = event.inputBuffer.getChannelData(0)
-        audio_data = np.frombuffer(input_buffer, dtype=np.float32)
-
-        # Calculate power
-        rms = np.sqrt(np.mean(audio_data**2))
-        power = 20 * np.log10(rms) if rms > 0.0 else -np.inf
-
-        # Placeholder for fundamental frequency calculation using YIN
-        # fo, _ = dio(audio_data, 16000)
-        # nonzero_ind = np.nonzero(fo.astype(int))[0]
-        # fo = fo[nonzero_ind].mean() if len(fo) > 0 else 0.0
-
-        # Placeholder for speech recognition
-        # if recognizer.AcceptWaveform(audio_data.tobytes()):
-        #     result = recognizer.Result()
-        #     console.log(result)
-
-        # Update UI
-        document.getElementById("output").innerText = f"音声パワー {power:.1f}[dB]"
-
-    processor.onaudioprocess = create_proxy(on_audio_process)
-    source.connect(processor)
-    processor.connect(audio_context.destination)
-
-document.getElementById("start-button").addEventListener("click", create_proxy(process_audio))
-`;
-
-            // Run the Python code
-            await pyodide.runPythonAsync(pythonCode);
-        }
-
-        main();
+        socket.onmessage = (event) => {
+            outputText.textContent = event.data;
+        };
     </script>
 </body>
 </html>
