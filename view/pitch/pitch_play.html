@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>音声入力デモ</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
 </head>
 <body>
     <h1>音声入力デモ</h1>
@@ -10,46 +11,6 @@
     <button id="stop">録音停止</button>
     <p id="status">ステータス: 停止中</p>
     <p id="output">音声パワー: - [dB], 基本周波数: - [Hz]</p>
-
-    <script>
-        const startButton = document.getElementById('start');
-        const stopButton = document.getElementById('stop');
-        const statusText = document.getElementById('status');
-        const outputText = document.getElementById('output');
-
-        let mediaRecorder;
-        let socket;
-
-        startButton.onclick = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            socket = new WebSocket('ws://https://speechtraininggame.github.io/minigame/view/pitch/pitch_play.html');
-
-            socket.onopen = () => {
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
-                        socket.send(event.data);
-                    }
-                };
-
-                socket.onmessage = (event) => {
-                    outputText.textContent = event.data;
-                };
-
-                mediaRecorder.start(100); // 100msごとにデータを送信
-                statusText.textContent = 'ステータス: 録音中';
-            };
-        };
-
-        stopButton.onclick = () => {
-            mediaRecorder.stop();
-            socket.close();
-            statusText.textContent = 'ステータス: 停止中';
-        };
-
-        socket.onmessage = (event) => {
-            outputText.textContent = event.data;
-        };
-    </script>
+    <script src="pitch_play.js"></script>
 </body>
 </html>
