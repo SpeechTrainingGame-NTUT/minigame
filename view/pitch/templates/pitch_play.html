@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>声の高さ チェック</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <style>
         * {
             font-family: 'Noto Sans JP', sans-serif !important;
@@ -39,7 +38,7 @@
             opacity: 0.8 !important;
         }
         .btn-group-custom {
-            gap: 0.5rem; /* ボタン間のスペースを調整 */
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -49,8 +48,8 @@
         <h1 class="mb-4">声の高さ チェック</h1>
         <p>ここでは基本周波数を用います。<br>周波数が高いほど、高い声、逆に、周波数が低いと低い声になります。</p>
         <div class="d-flex justify-content-center mb-3">
-            <button onclick="startRecording()" class="btn btn-custom-success col-auto">
-                <!--<i class="fas fa-play"></i>--> 開始
+            <button id="startButton" class="btn btn-custom-success col-auto">
+                開始
             </button>
         </div>
 
@@ -60,42 +59,67 @@
             <div class="col-md-8">
                 <div class="d-flex justify-content-center btn-group-custom">
                     <a href="../pitch_explain.html" class="btn btn-custom-primary">
-                        <!--<i class="fas fa-arrow-left me-2"></i>-->戻る
+                        戻る
                     </a>
                     <a href="../../../index.html" class="btn btn-custom-primary">
-                        <!--<i class="fas fa-home me-2"></i>-->ホーム画面へ
+                        ホーム画面へ
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <py-env>
+        - numpy
+        - librosa
+    </py-env>
+
+    <py-script>
+        import numpy as np
+        import librosa
+
+        #音声データを受け取り、librosaを使って基本周波数を計算
+        def process_audio(audio_data):
+            audio = np.frombuffer(audio_data, dtype=np.int16).astype(np.float64)
+            fo = librosa.yin(audio, fmin=50, fmax=500, sr=44100)
+            fo_mean = np.mean(fo) if len(fo) > 0 else 0
+            return fo_mean
+
+        #計算された基本周波数をHTMLのoutput要素に表示
+        def update_output(fo_mean):
+            document.getElementById('output').innerText = f"基本周波数: {fo_mean:.1f} [Hz]"
+    </py-script>
+
     <script>
-        async function startRecording() {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioContext.createMediaStreamSource(stream);
-            const processor = audioContext.createScriptProcessor(4096, 1, 1);
+        // ページが読み込まれたらPyodideをロード
+        document.addEventListener("DOMContentLoaded", async () => {
+            const pyodide = await loadPyodide();
+            await pyodide.loadPackage(["numpy", "librosa"]);
 
-            processor.onaudioprocess = async function(event) {
-                const inputData = event.inputBuffer.getChannelData(0);
-                const int16Data = new Int16Array(inputData.length);
-                for (let i = 0; i < inputData.length; i++) {
-                    int16Data[i] = inputData[i] * 32767;
-                }
-                const response = await fetch('/process_audio', {
-                    method: 'POST',
-                    body: int16Data.buffer
-                });
-                const result = await response.json();
-                document.getElementById('output').innerText = `基本周波数: ${result.fo.toFixed(1)} [Hz]`;
-            };
+            //マイクにアクセスして音声を録音
+            async function startRecording() {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                const processor = audioContext.createScriptProcessor(4096, 1, 1);
 
-            source.connect(processor);
-            processor.connect(audioContext.destination);
-        }
+                processor.onaudioprocess = async function(event) {
+                    const inputData = event.inputBuffer.getChannelData(0);
+                    const int16Data = new Int16Array(inputData.length);
+                    for (let i = 0; i < inputData.length; i++) {
+                        int16Data[i] = inputData[i] * 32767;
+                    }
+                    const fo_mean = await pyodide.runPythonAsync(`process_audio(${int16Data.buffer})`);
+                    pyodide.runPython(`update_output(${fo_mean})`);
+                };
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+            }
+
+            //開始ボタンを押したら開始
+            document.getElementById("startButton").onclick = startRecording;
+        });
     </script>
 </body>
 </html>
