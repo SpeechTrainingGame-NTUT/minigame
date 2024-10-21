@@ -6,8 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"></script>
     <style>
         * {
             font-family: 'Noto Sans JP', sans-serif !important;
@@ -69,32 +68,13 @@
         </div>
     </div>
 
-    <py-env>
-        - numpy
-        - librosa
-    </py-env>
-
-    <py-script>
-        import numpy as np
-        import librosa
-
-        #音声データを受け取り、librosaを使って基本周波数を計算
-        def process_audio(audio_data):
-            audio = np.frombuffer(audio_data, dtype=np.int16).astype(np.float64)
-            fo = librosa.yin(audio, fmin=50, fmax=500, sr=44100)
-            fo_mean = np.mean(fo) if len(fo) > 0 else 0
-            return fo_mean
-
-        #計算された基本周波数をHTMLのoutput要素に表示
-        def update_output(fo_mean):
-            document.getElementById('output').innerText = f"基本周波数: {fo_mean:.1f} [Hz]"
-    </py-script>
-
     <script>
         // ページが読み込まれたらPyodideをロード
         document.addEventListener("DOMContentLoaded", async () => {
             const pyodide = await loadPyodide();
-            await pyodide.loadPackage(["numpy", "librosa"]);
+            // 必要なパッケージをロード
+            await pyodide.loadPackage("numpy");
+            await pyodide.loadPackage("librosa");
 
             //マイクにアクセスして音声を録音
             async function startRecording() {
@@ -109,15 +89,23 @@
                     for (let i = 0; i < inputData.length; i++) {
                         int16Data[i] = inputData[i] * 32767;
                     }
-                    const fo_mean = await pyodide.runPythonAsync(`process_audio(${int16Data.buffer})`);
-                    pyodide.runPython(`update_output(${fo_mean})`);
+                    // 16bitのデータをバッファで渡す
+                    const fo_mean = await pyodide.runPythonAsync(`
+                        import numpy as np
+                        import librosa
+                        audio = np.frombuffer(${int16Data.buffer}, dtype=np.int16).astype(np.float64)
+                        fo = librosa.yin(audio, fmin=50, fmax=500, sr=44100)
+                        np.mean(fo) if len(fo) > 0 else 0
+                    `);
+                    // HTMLに周波数を表示
+                    document.getElementById('output').innerText = `基本周波数: ${fo_mean.toFixed(1)} [Hz]`;
                 };
 
                 source.connect(processor);
                 processor.connect(audioContext.destination);
             }
 
-            //開始ボタンを押したら開始
+            //開始ボタンを押したら録音開始
             document.getElementById("startButton").onclick = startRecording;
         });
     </script>
