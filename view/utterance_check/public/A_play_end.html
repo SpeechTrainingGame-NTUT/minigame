@@ -54,13 +54,13 @@
       <p>正解した単語：<span id="correctWords" class="fst-italic"></span></p>
       <p>ミスした単語：<span id="mistakeWords" class="fst-italic"></span></p>
       <p class="text-danger">目標の正解数は<span id="targetCorrect" class="fw-bold"></span>で、結果の正解数は<span id="correctCountNumber" class="fw-bold"></span>でした。<br><span id="targetMessage" class="fw-bold"></span></p>
-      <p>もっとハッキリ言った方がいい単語：<span id="unclearWordsDisplay" class="fst-italic"></span> <!-- 表示用のpタグに変更 --></p>
+      <p>もっとハッキリ言った方がいい単語：<span id="unclearWordsDisplay" class="fst-italic"></span></p>
     </div>
   </div>
   
   <div class="button-group">
     <a href='../utterance_check/A.html' class="btn btn-try">再挑戦</a>
-    <a href='../../index.html' class="btn btn-primary"><!--<i class="fas fa-home me-2"></i>-->トップ画面へ</a>
+    <a href='../../index.html' class="btn btn-primary"><!--<i class="fas fa-home me-2">--></i>トップ画面へ</a>
   </div>
 
   <script>
@@ -93,6 +93,25 @@
       // unclearWordsを読点で結合して表示する
       const unclearWordsDisplay = document.getElementById('unclearWordsDisplay');
       unclearWordsDisplay.textContent = unclearWords.length > 0 ? unclearWords.join('、') : 'なし';
+
+      // ひらがな変換と音素表示
+      const wordsToConvert = [...unclearWords, ...correctWords.split('、'), ...mistakeWords.split('、')];
+      wordsToConvert.forEach(word => {
+        fetch('/hiragana', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: word })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(`ひらがな: ${data.converted}, 音素: /${data.phonemes}/`);
+        })
+        .catch(error => {
+          console.error(`エラー: ${error}`);
+        });
+      });
     });
   </script>
 
