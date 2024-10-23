@@ -76,7 +76,7 @@ app.post('/hiragana', async (req, res) => {
     const text = req.body.text;
 
     try {
-        const response = await axios.post('https://labs.goo.ne.jp/api/hiragana', {
+        const response = await axios.post('https://speechtraininggame.github.io/minigame/view/utterance_check/public/A.html', {
             app_id: API_KEY,
             sentence: text,
             output_type: 'hiragana'
